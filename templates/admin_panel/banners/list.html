@@ -1,0 +1,91 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Banners & Slides — Madina Mobile Admin{% endblock %}
+{% block page_title %}Banners & Slides{% endblock %}
+{% block page_breadcrumb %}Content → Banners & Slides{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'admin_banner_add' %}" class="topbar-btn">
+    <i class="fas fa-plus"></i> Add Banner
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% if banners %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;">Order</th>
+                    <th>Banner Preview</th>
+                    <th>Title</th>
+                    <th>Subtitle</th>
+                    <th>CTA Button</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for banner in banners %}
+                <tr>
+                    <td style="color:var(--text-muted); font-weight:700;">{{ banner.order }}</td>
+                    <td>
+                        {% if banner.image_url %}
+                        <div style="width:120px; height:60px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); flex-shrink:0;">
+                            <img src="{{ banner.image_url }}" alt="{{ banner.title }}"
+                                 style="width:100%; height:100%; object-fit:cover;"
+                                 onerror="this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;\'>No image</div>';">
+                        </div>
+                        {% else %}
+                        <div style="width:120px; height:60px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:11px;">
+                            No image
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-weight:600; font-size:13px;">{{ banner.title|truncatechars:30 }}</span>
+                    </td>
+                    <td style="color:var(--text-muted); font-size:12px;">
+                        {{ banner.subtitle|truncatechars:35|default:"—" }}
+                    </td>
+                    <td>
+                        <span class="badge badge-blue">{{ banner.cta_text }}</span>
+                        {% if banner.cta_link %}<div style="font-size:10px; color:var(--text-muted); margin-top:3px;">→ {{ banner.cta_link }}</div>{% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'admin_banner_toggle' banner.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="badge {% if banner.is_active %}badge-green{% else %}badge-grey{% endif %}"
+                                    style="cursor:pointer; border:none; font-family:'Inter',sans-serif;">
+                                <i class="fas fa-circle" style="font-size:6px;"></i>
+                                {% if banner.is_active %}Active{% else %}Hidden{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="btn-actions">
+                            <a href="{% url 'admin_banner_edit' banner.pk %}" class="btn btn-sm btn-blue">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button class="btn btn-sm btn-red"
+                                    onclick="confirmDelete('{% url 'admin_banner_delete' banner.pk %}', '{{ banner.title|escapejs }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🖼️</div>
+        <div class="empty-title">No Banners Yet</div>
+        <div class="empty-desc">Add hero banners and promotional slides to display on your homepage.</div>
+        <a href="{% url 'admin_banner_add' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Add First Banner</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order #{{ order.id }} — Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .header {
+            padding: 20px 40px;
+            background: var(--dark-1);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            display: block;
+            font-size: 8px;
+            letter-spacing: 4px;
+            color: var(--gold);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Order Status Progress Bar */
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            z-index: 1;
+        }
+
+        .status-step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+        }
+
+        .status-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--dark-3);
+            border: 2px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 12px;
+            color: var(--grey);
+        }
+
+        .status-step.completed .status-dot {
+            background: #2ecc71;
+            border-color: #2ecc71;
+            color: var(--black);
+        }
+
+        .status-step.current .status-dot {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .status-name {
+            font-size: 12px;
+            color: var(--grey);
+        }
+
+        .status-step.completed .status-name,
+        .status-step.current .status-name {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .item-row:last-child { border-bottom: none; }
+
+        .item-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .badge-status {
+            background: rgba(192,57,43,0.15);
+            color: var(--gold);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="/" class="brand-logo" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; vertical-align:middle;">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+        <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+            <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+            <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:9px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+        </div>
+    </a>
+    <a href="/" style="color:var(--grey); text-decoration:none; font-size:13px;"><i class="fas fa-store"></i> Back to Store</a>
+</div>
+
+<div class="container">
+    <div class="card">
+        <div class="card-title">
+            <span>Tracking Order #{{ order.id }}</span>
+            <span class="badge-status">{{ order.get_status_display }}</span>
+        </div>
+
+        <!-- Status Timeline Bar -->
+        <div class="status-timeline">
+            <div class="status-step {% if order.status == 'pending' %}current{% else %}completed{% endif %}">
+                <div class="status-dot"><i class="fas fa-check"></i></div>
+                <div class="status-name">Placed</div>
+            </div>
+            <div class="status-step {% if order.status == 'confirmed' %}current{% elif order.status == 'processing' or order.status == 'shipped' or order.status == 'out_for_delivery' or order.status == 'delivered' %}completed{% endif %}">
+                <div class="status-dot"><i class="fas fa-clipboard-check"></i></div>
+                <div class="status-name">Confirmed</div>
+            </div>
+            <div class="status-step {% if order.status == 'shipped' %}current{% elif order.status == 'out_for_delivery' or order.status == 'delivered' %}completed{% endif %}">
+                <div class="status-dot"><i class="fas fa-truck"></i></div>
+                <div class="status-name">Shipped</div>
+            </div>
+            <div class="status-step {% if order.status == 'delivered' %}completed{% endif %}">
+                <div class="status-dot"><i class="fas fa-home"></i></div>
+                <div class="status-name">Delivered</div>
+            </div>
+        </div>
+
+        <div style="font-size:13px; color:var(--grey); margin-bottom:20px; border-top:1px solid rgba(255,255,255,0.06); padding-top:20px;">
+            <div><strong>Recipient:</strong> {{ order.customer_name }} ({{ order.customer_phone }})</div>
+            <div><strong>Delivery Address:</strong> {{ order.full_address }}</div>
+            <div><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</div>
+        </div>
+
+        <h3 style="font-size:15px; margin-bottom:12px;">Ordered Watches</h3>
+        {% for item in order.items.all %}
+        <div class="item-row">
+            <img src="{{ item.product.image_url }}" class="item-img">
+            <div style="flex:1;">
+                <div style="font-size:14px; font-weight:600;">{{ item.product.name }}</div>
+                <div style="font-size:12px; color:var(--grey);">Quantity: {{ item.quantity }}</div>
+            </div>
+            <div style="font-size:14px; font-weight:700; color:var(--gold);">Rs. {{ item.line_total|floatformat:0 }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

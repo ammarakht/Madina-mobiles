@@ -1,0 +1,170 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}{{ action }} — Madina Mobile Admin{% endblock %}
+{% block page_title %}{{ action }}{% endblock %}
+{% block page_breadcrumb %}Content → Banners → {{ action }}{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'admin_banner_list' %}" class="btn btn-outline">
+    <i class="fas fa-arrow-left"></i> Back to Banners
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start;">
+
+    <!-- Form -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-image" style="color:var(--gold); margin-right:8px;"></i> Banner Details</span>
+        </div>
+        <div class="card-body">
+            <form method="post" id="bannerForm">
+                {% csrf_token %}
+                <div style="display:flex; flex-direction:column; gap:18px;">
+
+                    <div class="form-group">
+                        <label class="form-label">Banner Title *</label>
+                        {{ form.title }}
+                        <span class="form-hint">Main headline shown on the banner (e.g. New Summer Collection)</span>
+                        {% if form.title.errors %}<div style="color:var(--red);font-size:11px;margin-top:4px;">{{ form.title.errors|join:", " }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Subtitle / Tagline</label>
+                        {{ form.subtitle }}
+                        <span class="form-hint">A short supporting line shown below the title</span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Button Text</label>
+                            {{ form.cta_text }}
+                            <span class="form-hint">e.g. Shop Now, Explore</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Button Link</label>
+                            {{ form.cta_link }}
+                            <span class="form-hint">e.g. /men/ or #flash-sale</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Background Image URL *</label>
+                        {{ form.image_url }}
+                        <span class="form-hint">A wide landscape image works best (1400×600 px or similar)</span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Display Order</label>
+                            {{ form.order }}
+                            <span class="form-hint">Lower = shown first in carousel</span>
+                        </div>
+                        <div class="form-group" style="justify-content:flex-end;">
+                            <label class="form-label">Visibility</label>
+                            <label class="checkbox-group" for="{{ form.is_active.id_for_label }}">
+                                {{ form.is_active }}
+                                <span class="checkbox-label">Show on homepage</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; margin-top:8px;">
+                        <button type="submit" class="btn btn-gold" style="padding:13px 32px; font-size:13px;">
+                            <i class="fas fa-save"></i>
+                            {% if banner %}Save Changes{% else %}Add Banner{% endif %}
+                        </button>
+                        <a href="{% url 'admin_banner_list' %}" class="btn btn-outline" style="padding:13px 24px;">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div style="position:sticky; top:80px;">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title" style="font-size:12px;"><i class="fas fa-eye" style="color:var(--gold); margin-right:6px;"></i> Live Preview</span>
+            </div>
+            <div class="card-body" style="padding:16px;">
+                <div id="bannerPreview" style="position:relative; border-radius:10px; overflow:hidden; height:180px; background:#111; border:1px solid rgba(255,255,255,0.08);">
+                    <img id="bannerPreviewImg" src="" alt=""
+                         style="width:100%; height:100%; object-fit:cover; display:none;">
+                    <div id="bannerPreviewPlaceholder"
+                         style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:var(--text-muted);">
+                        <i class="fas fa-image" style="font-size:32px; opacity:0.3;"></i>
+                        <span style="font-size:11px;">Image preview</span>
+                    </div>
+                    <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%);"></div>
+                    <div style="position:absolute; bottom:0; left:0; right:0; padding:16px;">
+                        <div id="prevTitle" style="font-family:sans-serif; font-size:15px; font-weight:800; color:#fff; letter-spacing:1px; text-transform:uppercase;">Banner Title</div>
+                        <div id="prevSubtitle" style="font-size:10px; color:rgba(255,255,255,0.7); margin-top:4px;">Subtitle text</div>
+                        <div id="prevCta" style="display:inline-block; margin-top:8px; padding:5px 14px; background:#fff; color:#000; font-size:10px; font-weight:700; border-radius:20px; letter-spacing:1px;">Shop Now</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px; padding:12px; background:rgba(255,255,255,0.03); border-radius:8px; font-size:11px; color:var(--text-muted); line-height:1.7;">
+                    <i class="fas fa-lightbulb" style="color:var(--gold);"></i>
+                    <strong style="color:var(--text-dim);">Tips:</strong><br>
+                    • Use a wide landscape image (1400×600 px)<br>
+                    • Dark images work best with white text<br>
+                    • Keep the title short and impactful
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const imgInput = document.querySelector('[name="image_url"]');
+    const titleInput = document.querySelector('[name="title"]');
+    const subtitleInput = document.querySelector('[name="subtitle"]');
+    const ctaInput = document.querySelector('[name="cta_text"]');
+
+    const previewImg = document.getElementById('bannerPreviewImg');
+    const placeholder = document.getElementById('bannerPreviewPlaceholder');
+    const prevTitle = document.getElementById('prevTitle');
+    const prevSubtitle = document.getElementById('prevSubtitle');
+    const prevCta = document.getElementById('prevCta');
+
+    if (imgInput) {
+        imgInput.addEventListener('input', function () {
+            const url = this.value.trim();
+            if (url) {
+                previewImg.src = url;
+                previewImg.style.display = 'block';
+                placeholder.style.display = 'none';
+                previewImg.onerror = function () {
+                    previewImg.style.display = 'none';
+                    placeholder.style.display = 'flex';
+                };
+            } else {
+                previewImg.style.display = 'none';
+                placeholder.style.display = 'flex';
+            }
+        });
+        // Init on edit
+        if (imgInput.value) {
+            previewImg.src = imgInput.value;
+            previewImg.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+    }
+
+    if (titleInput) {
+        titleInput.addEventListener('input', () => { prevTitle.textContent = titleInput.value || 'Banner Title'; });
+        prevTitle.textContent = titleInput.value || 'Banner Title';
+    }
+    if (subtitleInput) {
+        subtitleInput.addEventListener('input', () => { prevSubtitle.textContent = subtitleInput.value || 'Subtitle text'; });
+        prevSubtitle.textContent = subtitleInput.value || 'Subtitle text';
+    }
+    if (ctaInput) {
+        ctaInput.addEventListener('input', () => { prevCta.textContent = ctaInput.value || 'Shop Now'; });
+        prevCta.textContent = ctaInput.value || 'Shop Now';
+    }
+</script>
+{% endblock %}

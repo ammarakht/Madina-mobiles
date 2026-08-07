@@ -1,0 +1,83 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Customer Orders{% endblock %}
+{% block page_breadcrumb %}Orders / List{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="card-title"><i class="fas fa-shopping-cart"></i> All Orders</div>
+        <div>
+            <a href="{% url 'admin_order_list' %}" class="btn btn-sm {% if not status_filter %}btn-gold{% else %}btn-outline{% endif %}">All</a>
+            {% for code, label in status_choices %}
+            <a href="?status={{ code }}" class="btn btn-sm {% if status_filter == code %}btn-gold{% else %}btn-outline{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card-body" style="padding: 0;">
+        {% if orders %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Map Pin</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>
+                            <div><strong>{{ order.customer_name }}</strong></div>
+                            <div style="font-size:11px; color:var(--text-muted);">{{ order.customer_email }}</div>
+                        </td>
+                        <td>{{ order.customer_phone|default:"—" }}</td>
+                        <td>{{ order.city }}</td>
+                        <td><strong style="color:var(--gold);">Rs. {{ order.total_amount|floatformat:0 }}</strong></td>
+                        <td><span class="badge badge-grey">{{ order.get_payment_method_display }}</span></td>
+                        <td>
+                            {% if order.maps_link %}
+                            <a href="{{ order.maps_link }}" target="_blank" class="btn btn-sm btn-green"><i class="fas fa-map-marker-alt"></i> Pin</a>
+                            {% else %}
+                            <span style="color:var(--text-muted);">No Pin</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'admin_order_detail' order.pk %}" style="display:inline-block;">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" style="background: var(--dark-3); color: var(--gold); border: 1px solid rgba(192,57,43,0.3); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; outline: none;">
+                                    {% for code, label in status_choices %}
+                                    <option value="{{ code }}" {% if order.status == code %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                        <td>{{ order.created_at|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'admin_order_detail' order.pk %}" class="btn btn-sm btn-gold"><i class="fas fa-eye"></i> Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <div class="empty-title">No Orders Found</div>
+            <div class="empty-desc">When customers place orders, they will show up here.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed — Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 50% 30%, rgba(192,57,43,0.08) 0%, transparent 60%);
+            padding: 20px;
+        }
+
+        .confirm-card {
+            width: 100%;
+            max-width: 580px;
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(46, 204, 113, 0.15);
+            border: 2px solid #2ecc71;
+            color: #2ecc71;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .confirm-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .confirm-sub { font-size: 14px; color: var(--grey); margin-bottom: 28px; }
+
+        .order-badge {
+            display: inline-block;
+            background: rgba(192,57,43,0.12);
+            border: 1px solid rgba(192,57,43,0.3);
+            color: var(--gold);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+
+        .details-box {
+            background: var(--dark-3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 28px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .detail-row:last-child { margin-bottom: 0; }
+
+        .btn-track {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .btn-track:hover { background: var(--white); transform: translateY(-2px); }
+
+        .btn-home {
+            color: var(--grey);
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .btn-home:hover { color: var(--white); }
+    </style>
+</head>
+<body>
+
+<div class="confirm-card">
+    <div class="success-icon"><i class="fas fa-check"></i></div>
+
+    <h1 class="confirm-title">Order Placed Successfully!</h1>
+    <p class="confirm-sub">Thank you for shopping with Madina Mobile Shop. A confirmation email has been sent to {{ order.customer_email }}.</p>
+
+    <div class="order-badge">Order Number: #{{ order.id }}</div>
+
+    <div class="details-box">
+        <div class="detail-row">
+            <span style="color:var(--grey);">Customer Name:</span>
+            <strong>{{ order.customer_name }}</strong>
+        </div>
+        <div class="detail-row">
+            <span style="color:var(--grey);">Payment Method:</span>
+            <strong style="text-transform:uppercase;">{{ order.get_payment_method_display }}</strong>
+        </div>
+        <div class="detail-row">
+            <span style="color:var(--grey);">Total Amount:</span>
+            <strong style="color:var(--gold);">Rs. {{ order.total_amount|floatformat:0 }}</strong>
+        </div>
+        <div class="detail-row">
+            <span style="color:var(--grey);">Delivery Address:</span>
+            <strong style="text-align:right; max-width:240px;">{{ order.full_address }}</strong>
+        </div>
+    </div>
+
+    {% if whatsapp_url %}
+    <div style="background: rgba(37, 211, 102, 0.12); border: 2px solid #25D366; border-radius: 12px; padding: 22px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 36px; color: #25D366; margin-bottom: 8px;"><i class="fab fa-whatsapp"></i></div>
+        <h3 style="color: #25D366; font-weight: 800; font-size: 18px; margin-bottom: 6px;">Opening WhatsApp for Payment Details...</h3>
+        <p style="font-size: 13px; color: #cccccc; margin-bottom: 16px;">Order #{{ order.id }} is confirmed! We are automatically opening WhatsApp so you can send your order summary and get our {{ order.get_payment_method_display }} payment info.</p>
+        <a href="{{ whatsapp_url }}" id="whatsappDirectBtn" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #25D366; color: #ffffff; padding: 14px 28px; border-radius: 50px; font-weight: 800; font-size: 13px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 25px rgba(37,211,102,0.4);">
+            <i class="fab fa-whatsapp" style="font-size: 18px;"></i> Open WhatsApp Now
+        </a>
+    </div>
+    {% endif %}
+
+    {% if order.is_guest %}
+    <a href="{% url 'track_order' order.tracking_token %}" class="btn-track">Track Order Details →</a>
+    {% else %}
+    <a href="{% url 'customer_profile' %}" class="btn-track">View Order in My Profile →</a>
+    {% endif %}
+
+    <a href="/" class="btn-home">Back to Homepage</a>
+</div>
+
+<script>
+    // Clear frontend cart on confirmation
+    localStorage.removeItem('madina_cart');
+    {% if whatsapp_url %}
+    setTimeout(function() {
+        window.location.href = "{{ whatsapp_url|escapejs }}";
+    }, 1200);
+    {% endif %}
+</script>
+
+</body>
+</html>

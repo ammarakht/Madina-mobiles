@@ -1,0 +1,321 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}{{ action }} — Madina Mobile Admin{% endblock %}
+{% block page_title %}{{ action }}{% endblock %}
+{% block page_breadcrumb %}Catalog → Products → {{ action }}{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'admin_product_list' %}" class="btn btn-outline">
+    <i class="fas fa-arrow-left"></i> Back to Inventory
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-box {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        position: sticky;
+        top: 80px;
+    }
+    .preview-img {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 10px;
+        object-fit: cover;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .preview-img img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-placeholder {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.02);
+        border: 2px dashed rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+    .preview-placeholder i { font-size: 32px; color: var(--gold); }
+    .discount-calc {
+        background: rgba(192,57,43,0.08);
+        border: 1px solid rgba(192,57,43,0.2);
+        border-radius: 10px;
+        padding: 12px;
+        width: 100%;
+        text-align: center;
+    }
+    .disc-pct { font-size: 24px; font-weight: 800; color: var(--gold); }
+    .disc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" id="productForm">
+    {% csrf_token %}
+    <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px;">
+
+        <!-- LEFT: Form Fields -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+
+            <!-- Basic Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-info-circle" style="color:var(--gold); margin-right:8px;"></i> Product Overview</span>
+                </div>
+                <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+
+                    <div class="form-group">
+                        <label class="form-label">Product Name *</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.name.errors|join:", " }}</div>{% endif %}
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Category *</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.category.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">SKU Code</label>
+                            {{ form.sku }}
+                            {% if form.sku.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.sku.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Image URL *</label>
+                        {{ form.image_url }}
+                        {% if form.image_url.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.image_url.errors|join:", " }}</div>{% endif %}
+                        <span class="form-hint">Direct link to product image URL</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Hover Image URL (Optional)</label>
+                        {{ form.image2_url }}
+                        {% if form.image2_url.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.image2_url.errors|join:", " }}</div>{% endif %}
+                        <span class="form-hint">A second image shown on product hover</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Pricing Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-tag" style="color:var(--gold); margin-right:8px;"></i> Pricing & Discount</span>
+                </div>
+                <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Original Price (Rs.) *</label>
+                            {{ form.original_price }}
+                            {% if form.original_price.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.original_price.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sale Price (Rs.) *</label>
+                            {{ form.sale_price }}
+                            {% if form.sale_price.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.sale_price.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div style="font-size:12px; color:var(--text-muted);" id="priceTip">
+                        Discount: <strong style="color:var(--gold);" id="discountDisplay">0% OFF</strong>
+                        (Save <strong style="color:var(--green);" id="savingsDisplay">Rs. 0</strong>)
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Ratings & Inventory -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-star" style="color:var(--gold); margin-right:8px;"></i> Rating & Inventory</span>
+                </div>
+                <div class="card-body" style="display:flex; flex-direction:column; gap:16px;">
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Rating (1.0 – 5.0)</label>
+                            {{ form.rating }}
+                            {% if form.rating.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.rating.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Review Count</label>
+                            {{ form.review_count }}
+                            {% if form.review_count.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.review_count.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Toggles -->
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+
+                        <div class="toggle-wrap">
+                            <label class="switch">
+                                {{ form.in_stock }}
+                                <span class="slider"></span>
+                            </label>
+                            <div class="toggle-label">
+                                <div class="toggle-title">In Stock</div>
+                                <div class="toggle-desc">Product is available for immediate purchase</div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-wrap">
+                            <label class="switch">
+                                {{ form.is_featured }}
+                                <span class="slider"></span>
+                            </label>
+                            <div class="toggle-label">
+                                <div class="toggle-title">Featured Item</div>
+                                <div class="toggle-desc">Highlight on homepage & featured collections</div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-wrap">
+                            <label class="switch">
+                                {{ form.is_flash_sale }}
+                                <span class="slider"></span>
+                            </label>
+                            <div class="toggle-label">
+                                <div class="toggle-title">Flash Sale Item ⚡</div>
+                                <div class="toggle-desc">Display in the Flash Sale section with countdown timer</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: Preview -->
+        <div>
+            <div class="preview-box">
+                <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); width:100%; margin-bottom:-8px;">Live Preview</div>
+
+                <div id="imgPreviewWrap" style="width:100%;">
+                    {% if product and product.image_url %}
+                    <div class="preview-img"><img id="previewImg" src="{{ product.image_url }}" alt="Preview"></div>
+                    {% else %}
+                    <div class="preview-placeholder" id="previewPlaceholder">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Image will appear here</span>
+                    </div>
+                    <div class="preview-img" id="previewImgWrap" style="display:none;"><img id="previewImg" src="" alt="Preview"></div>
+                    {% endif %}
+                </div>
+
+                <div class="discount-calc" id="discCalc" style="width:100%;">
+                    <div class="disc-pct" id="discPct">—</div>
+                    <div class="disc-label">Discount</div>
+                </div>
+
+                <!-- Mini Product Card Preview -->
+                <div style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                    <div style="font-size:11px; font-weight:600; color:var(--text-dim); margin-bottom:6px;" id="previewName">Product Name</div>
+                    <div style="color:#ffc107; font-size:11px; margin-bottom:6px;">★★★★★</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <span style="font-size:16px; font-weight:800;" id="previewSale">Rs. —</span>
+                        <span style="font-size:11px; color:var(--text-muted); text-decoration:line-through;" id="previewOrig">Rs. —</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:13px; font-size:13px;">
+                    <i class="fas fa-save"></i>
+                    {% if product %}Save Changes{% else %}Add Product to Store{% endif %}
+                </button>
+            </div>
+        </div>
+
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Live image preview
+    const imageInput = document.querySelector('[name="image_url"]');
+    const previewImg = document.getElementById('previewImg');
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
+    const previewImgWrap = document.getElementById('previewImgWrap');
+
+    if (imageInput) {
+        imageInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+                if (previewImgWrap) previewImgWrap.style.display = 'block';
+                if (previewImg) {
+                    previewImg.src = url;
+                    previewImg.onerror = function() {
+                        if (previewPlaceholder) previewPlaceholder.style.display = 'flex';
+                        if (previewImgWrap) previewImgWrap.style.display = 'none';
+                    };
+                }
+            } else {
+                if (previewPlaceholder) previewPlaceholder.style.display = 'flex';
+                if (previewImgWrap) previewImgWrap.style.display = 'none';
+            }
+        });
+    }
+
+    // Live name preview
+    const nameInput = document.querySelector('[name="name"]');
+    const previewName = document.getElementById('previewName');
+    if (nameInput && previewName) {
+        nameInput.addEventListener('input', function() {
+            previewName.textContent = this.value || 'Watch Name';
+        });
+    }
+
+    // Live price preview + discount calculator
+    const origInput = document.querySelector('[name="original_price"]');
+    const saleInput = document.querySelector('[name="sale_price"]');
+    const previewOrig = document.getElementById('previewOrig');
+    const previewSale = document.getElementById('previewSale');
+    const discPct = document.getElementById('discPct');
+    const priceTip = document.getElementById('priceTip');
+    const discountDisplay = document.getElementById('discountDisplay');
+    const savingsDisplay = document.getElementById('savingsDisplay');
+
+    function updatePrices() {
+        const orig = parseFloat(origInput ? origInput.value : 0) || 0;
+        const sale = parseFloat(saleInput ? saleInput.value : 0) || 0;
+        if (previewOrig) previewOrig.textContent = orig > 0 ? `Rs. ${orig.toLocaleString()}` : 'Rs. —';
+        if (previewSale) previewSale.textContent = sale > 0 ? `Rs. ${sale.toLocaleString()}` : 'Rs. —';
+        if (orig > 0 && sale > 0 && sale < orig) {
+            const pct = Math.round((orig - sale) / orig * 100);
+            const savings = orig - sale;
+            if (discPct) discPct.textContent = pct + '% OFF';
+            if (priceTip) priceTip.style.display = 'block';
+            if (discountDisplay) discountDisplay.textContent = pct + '%';
+            if (savingsDisplay) savingsDisplay.textContent = `Rs. ${savings.toLocaleString()}`;
+        } else {
+            if (discPct) discPct.textContent = '—';
+            if (priceTip) priceTip.style.display = 'none';
+        }
+    }
+
+    if (origInput) origInput.addEventListener('input', updatePrices);
+    if (saleInput) saleInput.addEventListener('input', updatePrices);
+    updatePrices();
+</script>
+{% endblock %}

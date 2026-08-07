@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account — Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 50% 30%, rgba(192,57,43,0.08) 0%, transparent 60%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 40px 36px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+            text-align: center;
+            margin: 20px;
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--white);
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo span {
+            display: block;
+            font-size: 9px;
+            letter-spacing: 5px;
+            color: var(--gold);
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        .auth-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-sub {
+            font-size: 13px;
+            color: var(--grey);
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--grey);
+            margin-bottom: 6px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--grey);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--dark-3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 13px 16px 13px 44px;
+            color: var(--white);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(192,57,43,0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--grey);
+        }
+
+        .auth-footer a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover { text-decoration: underline; }
+
+        .error-msg {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid #e74c3c;
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <a href="/" class="brand-logo" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-bottom:24px;">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+        <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+            <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+            <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:9px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+        </div>
+    </a>
+
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-sub">Join Madina Mobile Shop for tracking your orders</p>
+
+    {% if error %}
+    <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <div class="input-wrap">
+                <i class="fas fa-user"></i>
+                <input type="text" name="name" class="form-input" placeholder="John Doe" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="input-wrap">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" class="form-input" placeholder="john@example.com" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <div class="input-wrap">
+                <i class="fas fa-phone"></i>
+                <input type="text" name="phone" class="form-input" placeholder="0300 1234567" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrap">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Register</button>
+    </form>
+
+    <div class="auth-footer">
+        Already have an account? <a href="{% url 'customer_login' %}">Sign In</a>
+    </div>
+</div>
+
+</body>
+</html>

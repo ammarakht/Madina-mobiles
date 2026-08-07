@@ -1,0 +1,74 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}{{ action }} — Madina Mobile Admin{% endblock %}
+{% block page_title %}{{ action }}{% endblock %}
+{% block page_breadcrumb %}Content → Categories → {{ action }}{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'admin_category_list' %}" class="btn btn-outline">
+    <i class="fas fa-arrow-left"></i> Back to Categories
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;">
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title"><i class="fas fa-tags" style="color:var(--gold); margin-right:8px;"></i> Category Details</span>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div style="display:flex; flex-direction:column; gap:18px;">
+                    <div class="form-group">
+                        <label class="form-label">Category Name *</label>
+                        {{ form.name }}
+                        <span class="form-hint">e.g. Smartphones, Accessories, Smart Watches, Audio & Gadgets</span>
+                        {% if form.name.errors %}<div style="color:var(--red);font-size:11px;margin-top:4px;">{{ form.name.errors|join:", " }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Slug (URL Key)</label>
+                        {{ form.slug }}
+                        <span class="form-hint">Used in web addresses — only lowercase letters, numbers, hyphens (e.g. men-formal)</span>
+                        {% if form.slug.errors %}<div style="color:var(--red);font-size:11px;margin-top:4px;">{{ form.slug.errors|join:", " }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Icon / Emoji</label>
+                        {{ form.icon }}
+                        <span class="form-hint">You can paste an emoji here (e.g. ⌚ 💍 📱) or leave blank</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Display Order</label>
+                        {{ form.order }}
+                        <span class="form-hint">Lower numbers appear first. Use 0, 1, 2…</span>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:8px;">
+                        <button type="submit" class="btn btn-gold" style="padding:13px 32px; font-size:13px;">
+                            <i class="fas fa-save"></i>
+                            {% if category %}Save Changes{% else %}Add Category{% endif %}
+                        </button>
+                        <a href="{% url 'admin_category_list' %}" class="btn btn-outline" style="padding:13px 24px;">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-generate slug from name
+    const nameField = document.querySelector('[name="name"]');
+    const slugField = document.querySelector('[name="slug"]');
+    if (nameField && slugField && !slugField.value) {
+        nameField.addEventListener('input', function() {
+            slugField.value = this.value
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        });
+    }
+</script>
+{% endblock %}

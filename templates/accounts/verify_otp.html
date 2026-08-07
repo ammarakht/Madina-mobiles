@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email — Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 50% 30%, rgba(192,57,43,0.08) 0%, transparent 60%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 40px 36px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+            text-align: center;
+            margin: 20px;
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--white);
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo span {
+            display: block;
+            font-size: 9px;
+            letter-spacing: 5px;
+            color: var(--gold);
+            font-weight: 400;
+            margin-top: 4px;
+        }
+
+        .auth-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(192,57,43,0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 20px;
+        }
+
+        .auth-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .auth-sub {
+            font-size: 13px;
+            color: var(--grey);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .auth-sub strong {
+            color: var(--gold);
+        }
+
+        .form-group {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .otp-input {
+            width: 100%;
+            max-width: 280px;
+            background: var(--dark-3);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--gold);
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 12px;
+            text-align: center;
+            font-family: 'Montserrat', monospace;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .otp-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(192,57,43,0.25);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--grey);
+        }
+
+        .auth-footer a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover { text-decoration: underline; }
+
+        .error-msg {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid #e74c3c;
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card">
+    <a href="/" class="brand-logo" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-bottom:24px;">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+        <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+            <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+            <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:9px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+        </div>
+    </a>
+
+    <div class="auth-icon">
+        <i class="fas fa-envelope-open-text"></i>
+    </div>
+
+    <h1 class="auth-title">Verify Email Address</h1>
+    <p class="auth-sub">
+        We sent a 6-digit verification code to<br>
+        <strong>{{ email }}</strong>
+    </p>
+
+    {% if error %}
+    <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <input type="text" name="code" class="otp-input" placeholder="000000" maxlength="6" pattern="[0-9]{6}" required autofocus autocomplete="off">
+        </div>
+
+        <button type="submit" class="btn-submit">Verify Code &amp; Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+        Didn't receive the code? <a href="{% url 'customer_register' %}">Try Again</a>
+    </div>
+</div>
+
+</body>
+</html>

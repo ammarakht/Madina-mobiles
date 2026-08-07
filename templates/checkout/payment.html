@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Method — Checkout | Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .header {
+            padding: 20px 40px;
+            background: var(--dark-1);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            display: block;
+            font-size: 8px;
+            letter-spacing: 4px;
+            color: var(--gold);
+        }
+
+        .checkout-steps {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .step { color: var(--grey); display: flex; align-items: center; gap: 6px; }
+        .step.active { color: var(--gold); font-weight: 700; }
+        .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--dark-3); display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .step.active .step-num { background: var(--gold); color: #fff; font-weight: 800; }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .payment-card {
+            background: var(--dark-3);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-card:hover {
+            border-color: rgba(192,57,43,0.4);
+        }
+
+        .payment-card.selected {
+            border-color: var(--gold);
+            background: rgba(192,57,43,0.06);
+        }
+
+        .payment-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .payment-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--gold);
+        }
+
+        .payment-info { text-align: left; }
+        .payment-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .payment-desc { font-size: 12px; color: var(--grey); }
+
+        .radio-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-card.selected .radio-dot {
+            border-color: var(--gold);
+        }
+
+        .payment-card.selected .radio-dot::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gold);
+        }
+
+        .bank-details {
+            background: rgba(192,57,43,0.08);
+            border: 1px solid rgba(192,57,43,0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-total {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gold);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid #e74c3c;
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="/" class="brand-logo" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; vertical-align:middle;">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+        <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+            <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+            <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:9px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+        </div>
+    </a>
+    <div class="checkout-steps">
+        <div class="step"><span class="step-num">1</span> Delivery Address</div>
+        <div class="step active"><span class="step-num">2</span> Payment</div>
+        <div class="step"><span class="step-num">3</span> Confirmation</div>
+    </div>
+</div>
+
+<form method="post" id="paymentForm">
+    {% csrf_token %}
+    <input type="hidden" name="payment_method" id="selectedPayment" value="cod">
+
+    <div class="container">
+        <!-- Left: Payment Options -->
+        <div>
+            {% if error %}
+            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+            {% endif %}
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-credit-card"></i> Select Payment Method</div>
+
+                <div class="payment-options">
+                    <!-- COD -->
+                    <div class="payment-card selected" onclick="selectPayment('cod')">
+                        <div class="payment-left">
+                            <div class="payment-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="payment-info">
+                                <div class="payment-name">Cash on Delivery (COD)</div>
+                                <div class="payment-desc">Pay cash when your order arrives at your doorstep</div>
+                            </div>
+                        </div>
+                        <div class="radio-dot"></div>
+                    </div>
+
+                    <!-- Card (Disabled - Available Soon) -->
+                    <div class="payment-card disabled" style="opacity: 0.55; cursor: not-allowed; position: relative; pointer-events: none; background: rgba(255,255,255,0.02);">
+                        <div class="payment-left">
+                            <div class="payment-icon" style="color: var(--grey);"><i class="fas fa-credit-card"></i></div>
+                            <div class="payment-info">
+                                <div class="payment-name" style="color: var(--grey); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    Credit / Debit Card
+                                    <span style="background: rgba(231,76,60,0.15); color: var(--gold-light); font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(231,76,60,0.3); text-transform: uppercase;">Available Soon</span>
+                                </div>
+                                <div class="payment-desc" style="color: #777;">Visa, Mastercard, PayPak — Online gateway coming soon</div>
+                            </div>
+                        </div>
+                        <div class="radio-dot" style="border-color: #444; opacity: 0.4;"></div>
+                    </div>
+
+                    <!-- Bank Transfer -->
+                    <div class="payment-card" onclick="selectPayment('bank')">
+                        <div class="payment-left">
+                            <div class="payment-icon"><i class="fas fa-university"></i></div>
+                            <div class="payment-info">
+                                <div class="payment-name">Bank Transfer</div>
+                                <div class="payment-desc">Direct bank account transfer (Meezan Bank)</div>
+                            </div>
+                        </div>
+                        <div class="radio-dot"></div>
+                    </div>
+
+                    <!-- Bank Account Info Box (shows when bank is selected) -->
+                    <div class="bank-details" id="bankInfo">
+                        <strong>🏦 Store Bank Account Details:</strong><br>
+                        • <strong>Bank Name:</strong> Meezan Bank Ltd.<br>
+                        • <strong>Account Title:</strong> Madina Mobile Shop<br>
+                        • <strong>Account Number:</strong> 01020304050607<br>
+                        • <strong>IBAN:</strong> PK36MEZN0001020304050607<br>
+                        <span style="color:var(--grey); font-size:11px; margin-top:6px; display:block;">
+                            Please share payment proof with order number after placing order.
+                        </span>
+                    </div>
+
+                    <!-- JazzCash -->
+                    <div class="payment-card" onclick="selectPayment('jazzcash')">
+                        <div class="payment-left">
+                            <div class="payment-icon"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="payment-info">
+                                <div class="payment-name">JazzCash Wallet</div>
+                                <div class="payment-desc">Pay via JazzCash mobile wallet</div>
+                            </div>
+                        </div>
+                        <div class="radio-dot"></div>
+                    </div>
+
+                    <!-- EasyPaisa -->
+                    <div class="payment-card" onclick="selectPayment('easypaisa')">
+                        <div class="payment-left">
+                            <div class="payment-icon"><i class="fas fa-wallet"></i></div>
+                            <div class="payment-info">
+                                <div class="payment-name">EasyPaisa Wallet</div>
+                                <div class="payment-desc">Pay via EasyPaisa mobile wallet</div>
+                            </div>
+                        </div>
+                        <div class="radio-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Summary & Place Order Button -->
+        <div>
+            <div class="card" style="position: sticky; top: 20px;">
+                <div class="card-title"><i class="fas fa-receipt"></i> Final Summary</div>
+
+                <div class="summary-row">
+                    <span>Delivery Address</span>
+                    <span style="text-align: right; color: var(--grey); max-width: 180px; font-size: 12px;">
+                        {{ address.house_number }}, {{ address.city }}
+                    </span>
+                </div>
+
+                <div class="summary-row" style="margin-top: 14px;">
+                    <span>Items Total</span>
+                    <span>Rs. {{ total|floatformat:0 }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span style="color: #2ecc71; font-weight: 600;">FREE</span>
+                </div>
+
+                <div class="summary-row summary-total">
+                    <span>Total Amount</span>
+                    <span>Rs. {{ total|floatformat:0 }}</span>
+                </div>
+
+                <button type="submit" class="btn-submit">Place Order ✓</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function selectPayment(method) {
+        if (method === 'card') return; // Credit / Debit Card is coming soon
+        document.getElementById('selectedPayment').value = method;
+        document.querySelectorAll('.payment-card').forEach(card => card.classList.remove('selected'));
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('selected');
+        }
+
+        const bankInfo = document.getElementById('bankInfo');
+        if (method === 'bank') {
+            bankInfo.style.display = 'block';
+        } else {
+            bankInfo.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>

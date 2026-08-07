@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Madina Mobile Shop - {{ info.title }} Collection. Quality products at the best prices.">
+    <title>{{ info.title }} | Madina Mobile Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --black: #000000;
+            --dark: #0a0a0a;
+            --dark-2: #111111;
+            --dark-3: #1a1a1a;
+            --gold: #c0392b;
+            --gold-light: #e74c3c;
+            --white: #ffffff;
+            --grey: #888888;
+            --light-grey: #f4f4f4;
+            --text-light: #cccccc;
+            --red: #e8392a;
+            --green: #2ecc71;
+            --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===================== LIGHT MODE OVERRIDES ===================== */
+        [data-theme="light"] {
+            --black: #ffffff;
+            --dark: #f5f5f5;
+            --dark-2: #eaeaea;
+            --dark-3: #ffffff;
+            --white: #111111;
+            --grey: #555555;
+            --text-light: #333333;
+            --light-grey: #e0e0e0;
+        }
+
+        [data-theme="light"] body {
+            background: #f5f5f5;
+            color: #111111;
+        }
+
+        [data-theme="light"] .site-header {
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        [data-theme="light"] .announcement-bar {
+            background: #111111;
+            color: #ffffff;
+            border-bottom: 1px solid #222;
+        }
+
+        [data-theme="light"] .header-icon { color: #111111 !important; }
+        [data-theme="light"] .header-icon i { color: #111111 !important; }
+        [data-theme="light"] .header-icon:hover { color: var(--gold) !important; border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.04); }
+        [data-theme="light"] .nav-link { color: #111111 !important; font-weight: 700; }
+        [data-theme="light"] .nav-link:hover { color: var(--gold) !important; }
+
+        [data-theme="light"] .product-card {
+            background: #ffffff;
+            border: 1px solid #e4e4e4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        [data-theme="light"] .product-card:hover { border-color: var(--gold); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+        [data-theme="light"] .product-image-wrap { background: #f8f8f8; }
+        [data-theme="light"] .product-name { color: #111111 !important; font-weight: 700; }
+        [data-theme="light"] .price-sale { color: #111111 !important; font-weight: 800; }
+        [data-theme="light"] .price-original { color: #777777 !important; }
+        [data-theme="light"] .rating-count { color: #555555 !important; font-weight: 600; }
+        [data-theme="light"] .add-to-cart-btn { border: 1px solid #bbb; color: #111111; font-weight: 700; }
+        [data-theme="light"] .add-to-cart-btn:hover { background: var(--gold); border-color: var(--gold); color: #ffffff; }
+
+        [data-theme="light"] .category-banner {
+            background: linear-gradient(135deg, #e8e8e8, #f4f4f4);
+            border-bottom: 1px solid #ddd;
+        }
+        [data-theme="light"] .category-title { color: #111111 !important; }
+        [data-theme="light"] .category-subtitle { color: #444444 !important; }
+        [data-theme="light"] .breadcrumbs { color: #666666 !important; }
+        [data-theme="light"] .filter-bar {
+            background: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        [data-theme="light"] .product-count { color: #333333 !important; font-weight: 700; }
+        [data-theme="light"] .filter-label { color: #111111 !important; font-weight: 700; }
+        [data-theme="light"] .filter-select {
+            background: #f5f5f5;
+            color: #111111;
+            border-color: #ccc;
+            font-weight: 700;
+        }
+
+        [data-theme="light"] .footer { background: #f0f0f0; color: #333333; }
+        [data-theme="light"] .footer-brand, [data-theme="light"] .footer-logo, [data-theme="light"] .footer-col-title { color: #111111; }
+        [data-theme="light"] .footer-links a { color: #555555; }
+        [data-theme="light"] .footer-links a:hover { color: #111111; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        img { display: block; }
+
+        /* ===================== ANNOUNCEMENT BAR ===================== */
+        .announcement-bar {
+            background: var(--dark-2);
+            border-bottom: 1px solid #222;
+            padding: 9px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            color: var(--text-light);
+        }
+        .announcement-bar span { display: flex; align-items: center; gap: 6px; }
+        .announcement-bar span i { color: var(--gold); }
+        .stars { color: #ffc107; font-size: 10px; }
+
+        /* ===================== HEADER ===================== */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: var(--transition);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .main-nav { display: flex; align-items: center; gap: 0; }
+        .nav-item { position: relative; }
+        .nav-link {
+            display: block;
+            padding: 26px 18px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--white);
+            transition: var(--transition);
+        }
+        .nav-link:hover { color: var(--gold); }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 220px;
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-top: 2px solid var(--gold);
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: var(--transition);
+            z-index: 999;
+        }
+        .nav-item:hover .dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown a {
+            display: block;
+            padding: 12px 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .dropdown a:hover { color: var(--gold); background: rgba(192,57,43,0.05); padding-left: 26px; }
+
+        .header-icons { display: flex; align-items: center; gap: 18px; }
+        .header-icon {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 15px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            position: relative;
+        }
+        .header-icon:hover { color: var(--white); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+
+        .theme-toggle {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+            position: relative;
+            background: transparent;
+            color: var(--text-light);
+            overflow: hidden;
+        }
+        .theme-toggle:hover { color: var(--gold); border-color: rgba(192,57,43,0.3); background: rgba(192,57,43,0.08); }
+
+        .cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--gold);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===================== CATEGORY BANNER ===================== */
+        .category-banner {
+            background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%);
+            padding: 60px 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+        }
+
+        .category-banner-inner {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .breadcrumbs {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--grey);
+            margin-bottom: 16px;
+        }
+        .breadcrumbs a { color: var(--gold); }
+        .breadcrumbs a:hover { text-decoration: underline; }
+
+        .category-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(30px, 4vw, 46px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--white);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .category-subtitle {
+            font-size: 13.5px;
+            color: var(--text-light);
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ===================== FILTER & SORT BAR ===================== */
+        .filter-bar {
+            background: var(--dark-2);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 16px 40px;
+        }
+
+        .filter-bar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .product-count {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--grey);
+            text-transform: uppercase;
+        }
+
+        .product-count span { color: var(--gold); }
+
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-light);
+        }
+
+        .filter-select {
+            background: var(--dark-3);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: var(--white);
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus { border-color: var(--gold); }
+
+        /* ===================== PRODUCT GRID SECTION ===================== */
+        .catalog-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 40px 80px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .product-card {
+            background: var(--dark-3);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        .product-card:hover {
+            border-color: rgba(192,57,43,0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+        }
+
+        .product-image-wrap {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #111;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .product-card:hover .product-img { transform: scale(1.08); }
+
+        .discount-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--red);
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .product-info { padding: 18px 16px 20px; }
+
+        .product-name {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 7px;
+            line-height: 1.4;
+            letter-spacing: 0.3px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .rating-stars { color: #ffc107; font-size: 11px; letter-spacing: 1px; }
+        .rating-count { font-size: 10.5px; color: var(--grey); }
+
+        .product-price { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .price-sale { font-size: 17px; font-weight: 800; color: var(--white); }
+        .price-original { font-size: 12.5px; color: var(--grey); text-decoration: line-through; }
+
+        .stock-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--green);
+            text-transform: uppercase;
+        }
+
+        .stock-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 11px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-light);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 14px;
+            transition: var(--transition);
+        }
+        .add-to-cart-btn:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #fff;
+        }
+
+        /* Empty state */
+        .empty-catalog {
+            text-align: center;
+            padding: 80px 20px;
+            grid-column: 1 / -1;
+        }
+        .empty-catalog i { font-size: 50px; color: var(--gold); margin-bottom: 18px; }
+        .empty-catalog h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .empty-catalog p { color: var(--grey); font-size: 13px; margin-bottom: 24px; }
+
+        /* ===================== CART DRAWER ===================== */
+        .cart-drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        .cart-drawer-overlay.open { opacity: 1; visibility: visible; }
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 420px;
+            max-width: 100%;
+            height: 100vh;
+            background: var(--dark-2);
+            border-left: 1px solid rgba(255,255,255,0.06);
+            z-index: 1060;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cart-drawer.open { right: 0; }
+        .cart-drawer-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-drawer-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+        .cart-drawer-close { background: none; border: none; font-size: 20px; color: var(--grey); cursor: pointer; }
+        .cart-drawer-items { flex: 1; overflow-y: auto; padding: 24px; }
+        .cart-drawer-footer { padding: 24px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.2); }
+        .cart-checkout-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold) !important;
+            color: #ffffff !important;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(192,57,43,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .cart-checkout-btn:hover {
+            background: #a5281c !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(192,57,43,0.6);
+        }
+
+        /* ===================== FOOTER ===================== */
+        .footer {
+            background: #f8f8f8;
+            color: #333;
+            padding: 60px 40px 0;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer-inner { max-width: 1400px; margin: 0 auto; }
+        .footer-top { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 2fr; gap: 40px; padding-bottom: 40px; border-bottom: 1px solid #e0e0e0; }
+        .footer-brand { color: var(--black); }
+        .footer-desc { font-size: 12.5px; line-height: 1.8; color: #666; margin-bottom: 22px; }
+        .footer-col-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--black); margin-bottom: 20px; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { font-size: 12.5px; color: #666; transition: var(--transition); }
+        .footer-links a:hover { color: var(--black); padding-left: 5px; }
+        .footer-bottom { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: #999; }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .product-grid { grid-template-columns: repeat(3, 1fr); }
+            .footer-top { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .announcement-bar { font-size: 9px; padding: 8px 20px; }
+            .header-inner { padding: 0 20px; }
+            .main-nav { display: none; }
+            .catalog-section { padding: 30px 20px 60px; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+            .footer-top { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .product-grid { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Announcement Bar -->
+<div class="announcement-bar">
+    <span><i class="fas fa-truck"></i> Fast Express Delivery Across Pakistan</span>
+    <span>
+        <span class="stars">★★★★★</span>
+        &nbsp;18 Million+ Satisfied Customers
+    </span>
+    <span><i class="fas fa-shield-alt"></i> 1 Year International Warranty</span>
+</div>
+
+<!-- Header -->
+<header class="site-header" id="site-header">
+    <div class="header-inner">
+        <!-- Logo -->
+        <a href="/" class="logo" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; vertical-align:middle;">
+            <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+            <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+                <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; letter-spacing:1.5px; color:var(--white); text-transform:uppercase;">Madina</span>
+                <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:8px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+            </div>
+        </a>
+
+        <!-- Navigation -->
+        <nav class="main-nav" aria-label="Main Navigation">
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'smartphones' %}" class="nav-link">Smartphones</a>
+                <div class="dropdown">
+                    <a href="{% url 'category_products' 'smartphones' %}?q=iphone">Apple iPhone</a>
+                    <a href="{% url 'category_products' 'smartphones' %}?q=samsung">Samsung Galaxy</a>
+                    <a href="{% url 'category_products' 'smartphones' %}?q=xiaomi">Xiaomi / Redmi</a>
+                    <a href="{% url 'category_products' 'smartphones' %}?q=infinix">Infinix / Tecno</a>
+                    <a href="{% url 'category_products' 'smartphones' %}?q=realme">Realme / Oppo</a>
+                    <a href="{% url 'category_products' 'smartphones' %}">View All Smartphones</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'accessories' %}" class="nav-link">Accessories</a>
+                <div class="dropdown">
+                    <a href="{% url 'category_products' 'accessories' %}?q=case">Cases & Covers</a>
+                    <a href="{% url 'category_products' 'accessories' %}?q=charger">Chargers & Cables</a>
+                    <a href="{% url 'category_products' 'accessories' %}?q=glass">Screen Protectors</a>
+                    <a href="{% url 'category_products' 'accessories' %}?q=power">Power Banks</a>
+                    <a href="{% url 'category_products' 'accessories' %}">View All Accessories</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'smart-watches' %}" class="nav-link">Smart Watches</a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'audio-gadgets' %}" class="nav-link">Audio & Gadgets</a>
+                <div class="dropdown">
+                    <a href="{% url 'category_products' 'audio-gadgets' %}?q=buds">Wireless Earbuds</a>
+                    <a href="{% url 'category_products' 'audio-gadgets' %}?q=speaker">Bluetooth Speakers</a>
+                    <a href="{% url 'category_products' 'audio-gadgets' %}">Smart Gadgets</a>
+                    <a href="{% url 'category_products' 'audio-gadgets' %}">View All Gadgets</a>
+                </div>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'best-sellers' %}" class="nav-link">Best Sellers</a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'sale' %}" class="nav-link" style="color:var(--gold);">Sale Items 🏷️</a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'category_products' 'flash-sale' %}" class="nav-link" style="color:var(--gold);">Flash Sale ⚡</a>
+            </div>
+            <div class="nav-item">
+                <a href="{% url 'my_orders' %}" class="nav-link"><i class="fas fa-box" style="margin-right:4px;"></i> My Orders</a>
+            </div>
+        </nav>
+
+        <!-- Header Icons -->
+        <div class="header-icons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'customer_profile' %}" class="header-icon" title="My Account" id="account-icon" style="background: var(--gold); color: #fff; font-weight: 700; font-size: 11px; width: 34px; height: 34px;">
+                    {{ user.profile.initials|default:user.username|slice:":2"|upper }}
+                </a>
+            {% else %}
+                <a href="{% url 'customer_login' %}" class="header-icon" title="Sign In / Register" id="account-icon">
+                    <i class="fas fa-user"></i>
+                </a>
+            {% endif %}
+            <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark Mode" aria-label="Toggle theme">
+                <span class="toggle-icon" id="toggle-icon"><i class="fas fa-moon"></i></span>
+            </button>
+            <a href="/" class="header-icon" title="Search"><i class="fas fa-search"></i></a>
+            <a href="#" class="header-icon" title="Cart" id="cart-icon">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="cart-badge">0</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Category Banner Header -->
+<div class="category-banner">
+    <div class="category-banner-inner">
+        <div class="breadcrumbs">
+            <a href="/">Home</a> / <a href="{% url 'all_products' %}">Store Catalog</a> / <span>{{ info.title }}</span>
+        </div>
+        <h1 class="category-title">
+            <span>{{ info.icon }}</span> {{ info.title }}
+        </h1>
+        <p class="category-subtitle">{{ info.subtitle }}</p>
+    </div>
+</div>
+
+<!-- Filter & Sort Bar -->
+<div class="filter-bar">
+    <div class="filter-bar-inner">
+        <div class="product-count">
+            Showing <span>{{ total_count }}</span> products in {{ info.title }}
+        </div>
+        <div class="filter-controls">
+            <label class="filter-label" for="sortSelect">Sort By:</label>
+            <select class="filter-select" id="sortSelect" onchange="applySorting(this.value)">
+                <option value="default" {% if sort == 'default' %}selected{% endif %}>Newest Arrivals</option>
+                <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Product Grid Catalog -->
+<div class="catalog-section">
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card" data-product-id="{{ product.id }}">
+            <div class="product-image-wrap">
+                {% if product.discount_percent > 0 %}
+                <span class="discount-badge">{{ product.discount_percent }}% OFF</span>
+                {% endif %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+            </div>
+
+            <div class="product-info">
+                <h3 class="product-name">{{ product.name }}</h3>
+                
+                <div class="product-rating">
+                    <span class="rating-stars">★★★★★</span>
+                    <span class="rating-count">{{ product.rating }} ({{ product.review_count }})</span>
+                </div>
+
+                <div class="product-price">
+                    <span class="price-sale">Rs. {{ product.sale_price|floatformat:0 }}</span>
+                    {% if product.original_price > product.sale_price %}
+                    <span class="price-original">Rs. {{ product.original_price|floatformat:0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="stock-status">
+                    <span class="stock-dot"></span> In Stock
+                </div>
+
+                <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|escapejs }}', {{ product.sale_price }}, '{{ product.image_url|escapejs }}')">
+                    <i class="fas fa-shopping-bag"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-catalog">
+            <i class="fas fa-box-open"></i>
+            <h3>No Products Found</h3>
+            <p>We couldn't find any products matching your criteria in this collection.</p>
+            <a href="{% url 'all_products' %}" class="add-to-cart-btn" style="display:inline-block; width:auto; padding:12px 30px;">
+                Browse All Products
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Cart Drawer -->
+<div class="cart-drawer-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-drawer-header">
+        <h2 class="cart-drawer-title">Shopping Cart</h2>
+        <button class="cart-drawer-close" id="cartClose">&times;</button>
+    </div>
+
+    <div class="cart-drawer-items" id="cartItems">
+        <!-- Rendered via JS -->
+    </div>
+
+    <div class="cart-drawer-footer">
+        <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:700; margin-bottom:15px;">
+            <span>SUBTOTAL:</span>
+            <span id="cartSubtotal">Rs. 0</span>
+        </div>
+        <button class="cart-checkout-btn" id="cartCheckoutBtn">PROCEED TO CHECKOUT <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo" style="display:inline-flex; align-items:center; gap:10px; margin-bottom:15px;">
+                    <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:35px; width:auto; display:block;">
+                    <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+                        <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+                        <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:8px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+                    </div>
+                </div>
+                <p class="footer-desc">Your trusted destination for mobile phones, accessories, and gadgets. Quality products at the best prices.</p>
+            </div>
+            <div>
+                <h4 class="footer-col-title">Categories</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'category_products' 'smartphones' %}">Smartphones</a></li>
+                    <li><a href="{% url 'category_products' 'accessories' %}">Mobile Accessories</a></li>
+                    <li><a href="{% url 'category_products' 'smart-watches' %}">Smart Watches</a></li>
+                    <li><a href="{% url 'category_products' 'audio-gadgets' %}">Audio & Gadgets</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-col-title">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'category_products' 'flash-sale' %}">Flash Sale</a></li>
+                    <li><a href="{% url 'category_products' 'best-sellers' %}">Best Sellers</a></li>
+                    <li><a href="{% url 'customer_login' %}">My Account</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-col-title">Contact Us</h4>
+                <p style="font-size:12.5px; color:#666; line-height:1.8;">📍 Main Market, Shop #12, Mobile Market</p>
+                <p style="font-size:12.5px; color:#666; line-height:1.8;">📞 +92 340 7608138</p>
+                <p style="font-size:12.5px; color:#666; line-height:1.8;">✉️ info@madinamobileshop.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2026 Madina Mobile Shop. All Rights Reserved. &bull; <a href="{% url 'admin_login' %}" style="color:inherit; text-decoration:none; opacity:0.6;" title="Staff / Admin Portal">Staff Login</a></span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // ===== CART SYSTEM =====
+    let cart = JSON.parse(localStorage.getItem('madina_cart')) || [];
+
+    function saveCart() {
+        localStorage.setItem('madina_cart', JSON.stringify(cart));
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const cartBadge = document.querySelector('.cart-badge');
+        const cartItems = document.getElementById('cartItems');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+
+        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+        if (cartBadge) cartBadge.textContent = totalQty;
+
+        if (cart.length === 0) {
+            cartItems.innerHTML = '<div style="text-align:center; color:var(--grey); padding:40px 0;"><i class="fas fa-shopping-bag" style="font-size:40px; margin-bottom:15px;"></i><p>Your cart is empty</p></div>';
+            if (cartSubtotal) cartSubtotal.textContent = 'Rs. 0';
+            return;
+        }
+
+        let total = 0;
+        let html = '';
+        cart.forEach((item, index) => {
+            const itemTotal = item.price * item.qty;
+            total += itemTotal;
+            const imgSrc = item.image || item.img || '';
+            html += `
+                <div class="cart-item-row" style="display:flex; gap:14px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08); align-items:center;">
+                    <img src="${imgSrc}" class="cart-item-img" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">
+                    <div class="cart-item-details" style="flex:1;">
+                        <h4 class="cart-item-name" style="font-size:12px; font-weight:700;">${item.name}</h4>
+                        <span class="cart-item-price" style="font-size:13px; font-weight:800;">Rs. ${item.price.toLocaleString()}</span>
+                        <div class="cart-item-qty-control" style="display:flex; align-items:center; border:1px solid rgba(128,128,128,0.4); border-radius:4px; margin-top:6px; width:fit-content;">
+                            <button onclick="changeCatCartQty(${index}, -1)" class="cart-qty-btn" style="width:28px; height:26px; border:none; background:none; font-weight:900; cursor:pointer;">-</button>
+                            <span class="cart-qty-val" style="width:28px; text-align:center; font-weight:800; font-size:12px;">${item.qty}</span>
+                            <button onclick="changeCatCartQty(${index}, 1)" class="cart-qty-btn" style="width:28px; height:26px; border:none; background:none; font-weight:900; cursor:pointer;">+</button>
+                        </div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" class="cart-item-remove" style="background:none; border:none; cursor:pointer; font-size:14px; padding:6px;"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+        });
+
+        cartItems.innerHTML = html;
+        if (cartSubtotal) cartSubtotal.textContent = 'Rs. ' + total.toLocaleString();
+    }
+
+    function changeCatCartQty(index, delta) {
+        if (cart[index]) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            saveCart();
+        }
+    }
+
+    function addToCart(id, name, price, image) {
+        const existing = cart.find(item => item.id === id);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.push({ id, name, price, image, qty: 1 });
+        }
+        saveCart();
+        openCartDrawer();
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        saveCart();
+    }
+
+    const cartIcon = document.getElementById('cart-icon');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartClose = document.getElementById('cartClose');
+    const cartCheckoutBtn = document.getElementById('cartCheckoutBtn');
+
+    function openCartDrawer() {
+        cartDrawer.classList.add('open');
+        cartOverlay.classList.add('open');
+    }
+
+    function closeCartDrawer() {
+        cartDrawer.classList.remove('open');
+        cartOverlay.classList.remove('open');
+    }
+
+    if (cartIcon) cartIcon.addEventListener('click', (e) => { e.preventDefault(); openCartDrawer(); });
+    if (cartClose) cartClose.addEventListener('click', closeCartDrawer);
+    if (cartOverlay) cartOverlay.addEventListener('click', closeCartDrawer);
+
+    if (cartCheckoutBtn) {
+        cartCheckoutBtn.addEventListener('click', () => {
+            if (cart.length === 0) return alert('Your cart is empty!');
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "checkout_start" %}';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            form.appendChild(csrfInput);
+            const cartInput = document.createElement('input');
+            cartInput.type = 'hidden';
+            cartInput.name = 'cart';
+            cartInput.value = JSON.stringify(cart);
+            form.appendChild(cartInput);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    // ===== SORTING HANDLER =====
+    function applySorting(val) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', val);
+        window.location.href = url.toString();
+    }
+
+    // ===== THEME TOGGLE (DARK / LIGHT) =====
+    (function() {
+        const toggle = document.getElementById('theme-toggle');
+        const iconWrap = document.getElementById('toggle-icon');
+        const html = document.documentElement;
+        const stored = localStorage.getItem('madina_theme');
+
+        function applyTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('madina_theme', theme);
+            if (iconWrap) {
+                iconWrap.innerHTML = theme === 'light'
+                    ? '<i class="fas fa-sun" style="color:#f5a623;"></i>'
+                    : '<i class="fas fa-moon"></i>';
+            }
+        }
+
+        if (stored === 'light') {
+            applyTheme('light');
+        }
+
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const current = html.getAttribute('data-theme') || 'dark';
+                applyTheme(current === 'dark' ? 'light' : 'dark');
+            });
+        }
+    })();
+
+    updateCartUI();
+</script>
+
+</body>
+</html>

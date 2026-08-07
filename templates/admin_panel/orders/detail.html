@@ -1,0 +1,133 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Order #{{ order.id }} Details{% endblock %}
+{% block page_breadcrumb %}Orders / Details{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px;">
+
+    <!-- Left: Order Info + Address + Map + Items -->
+    <div>
+        <!-- Customer & Address Card -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-user-check"></i> Customer &amp; Delivery Information</div>
+                <span class="badge {% if order.is_guest %}badge-grey{% else %}badge-gold{% endif %}">
+                    {% if order.is_guest %}Guest Order{% else %}Registered Account{% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <div class="form-label">Customer Name</div>
+                        <div style="font-size: 15px; font-weight: 700;">{{ order.customer_name }}</div>
+                    </div>
+                    <div>
+                        <div class="form-label">Email Address</div>
+                        <div style="font-size: 14px; color: var(--gold);">{{ order.customer_email }}</div>
+                    </div>
+                    <div>
+                        <div class="form-label">Phone Number</div>
+                        <div style="font-size: 14px;">{{ order.customer_phone|default:"—" }}</div>
+                    </div>
+                    <div>
+                        <div class="form-label">Payment Method</div>
+                        <div style="font-size: 14px; font-weight: 700; text-transform: uppercase;">{{ order.get_payment_method_display }}</div>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid var(--card-border); padding-top: 16px;">
+                    <div class="form-label" style="margin-bottom: 8px;">Delivery Address Breakdown</div>
+                    <div style="font-size: 13px; line-height: 1.8;">
+                        • <strong>House/Flat:</strong> {{ order.house_number }}<br>
+                        • <strong>Street/Colony:</strong> {{ order.street_colony }}<br>
+                        • <strong>City:</strong> {{ order.city }}<br>
+                        • <strong>Landmark:</strong> {{ order.landmark|default:"None" }}
+                    </div>
+
+                    {% if order.maps_link %}
+                    <div style="margin-top: 16px;">
+                        <a href="{{ order.maps_link }}" target="_blank" class="btn btn-green">
+                            <i class="fas fa-map-marked-alt"></i> Open Location in Google Maps ↗
+                        </a>
+                        <span style="font-size: 11px; color: var(--text-muted); margin-left: 10px;">
+                            ({{ order.map_lat }}, {{ order.map_lng }})
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Ordered Items Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-mobile-alt"></i> Ordered Products</div>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <img src="{{ item.product.image_url }}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px;">
+                                        <div>
+                                            <div style="font-weight: 600;">{{ item.product.name }}</div>
+                                            <div style="font-size: 11px; color: var(--text-muted);">SKU: {{ item.product.sku }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Rs. {{ item.price_at_purchase|floatformat:0 }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td><strong style="color: var(--gold);">Rs. {{ item.line_total|floatformat:0 }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Update Status Card -->
+    <div>
+        <div class="card" style="position: sticky; top: 80px;">
+            <div class="card-header">
+                <div class="card-title"><i class="fas fa-tasks"></i> Update Order Status</div>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label class="form-label">Current Status</label>
+                        <select name="status" class="form-control">
+                            {% for code, label in status_choices %}
+                            <option value="{{ code }}" {% if order.status == code %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-save"></i> Save Status
+                    </button>
+                </form>
+
+                <div style="margin-top: 24px; border-top: 1px solid var(--card-border); padding-top: 16px; font-size: 12px; color: var(--text-muted);">
+                    <div><strong>Order ID:</strong> #{{ order.id }}</div>
+                    <div><strong>Placed On:</strong> {{ order.created_at|date:"d M Y, h:i A" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

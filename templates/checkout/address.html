@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Address — Checkout | Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        .header {
+            padding: 20px 40px;
+            background: var(--dark-1);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            display: block;
+            font-size: 8px;
+            letter-spacing: 4px;
+            color: var(--gold);
+        }
+
+        .checkout-steps {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .step { color: var(--grey); display: flex; align-items: center; gap: 6px; }
+        .step.active { color: var(--gold); font-weight: 700; }
+        .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--dark-3); display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .step.active .step-num { background: var(--gold); color: #fff; font-weight: 800; }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--grey);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: var(--dark-3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--white);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--gold);
+        }
+
+        .form-select option { background: var(--dark-2); }
+
+        /* Map styling */
+        #map {
+            width: 100%;
+            height: 280px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+            margin-top: 8px;
+            z-index: 1;
+        }
+
+        .map-hint {
+            font-size: 12px;
+            color: var(--gold);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Order Summary Sidebar */
+        .summary-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .summary-img {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .summary-details { flex: 1; }
+        .summary-name { font-size: 13px; font-weight: 600; }
+        .summary-price { font-size: 12px; color: var(--grey); }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-total {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gold);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 14px;
+            margin-top: 14px;
+        }
+
+        .btn-next {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-next:hover {
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid #e74c3c;
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="/" class="brand-logo" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; vertical-align:middle;">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+        <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+            <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+            <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:9px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+        </div>
+    </a>
+    <div class="checkout-steps">
+        <div class="step active"><span class="step-num">1</span> Delivery Address</div>
+        <div class="step"><span class="step-num">2</span> Payment</div>
+        <div class="step"><span class="step-num">3</span> Confirmation</div>
+    </div>
+</div>
+
+<form method="post" id="addressForm">
+    {% csrf_token %}
+    <input type="hidden" name="map_lat" id="map_lat" value="">
+    <input type="hidden" name="map_lng" id="map_lng" value="">
+
+    <div class="container">
+        <!-- Left: Address Form & Map -->
+        <div>
+            {% if error %}
+            <div class="error-msg"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+            {% endif %}
+
+            {% if is_guest %}
+            <!-- Guest Customer Info Section -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-user-circle"></i> Customer Information (Guest)</div>
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" name="guest_name" class="form-input" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" name="guest_email" class="form-input" placeholder="john@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number *</label>
+                        <input type="text" name="guest_phone" class="form-input" placeholder="0300 1234567" required>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Delivery Address Section -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-map-marker-alt"></i> Shipping Address</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">House / Flat / Apartment No. *</label>
+                        <input type="text" name="house_number" class="form-input" placeholder="House # 12-B, Floor 2" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Street / Society / Colony *</label>
+                        <input type="text" name="street_colony" class="form-input" placeholder="Street 5, Saddar / DHA Phase 5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City *</label>
+                        <select name="city" class="form-select" required>
+                            <option value="">Select City</option>
+                            {% for c in cities %}
+                            <option value="{{ c }}" {% if prefill.city == c or c == 'Rawalpindi' %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nearby Landmark / Known Place (Optional)</label>
+                        <input type="text" name="landmark" class="form-input" placeholder="Opposite Commercial Bank / Near Park">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Location Pinning -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-map-marked-alt"></i> Mark Exact Location on Map</div>
+                <p style="font-size: 13px; color: var(--grey); margin-bottom: 10px;">
+                    Drag the gold marker pin on the map to mark your exact delivery spot.
+                </p>
+                <div id="map"></div>
+                <div class="map-hint" id="mapStatus">
+                    <i class="fas fa-info-circle"></i> Default pin set to Islamabad / Rawalpindi Saddar. Drag pin to adjust.
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Summary & Next Button -->
+        <div>
+            <div class="card" style="position: sticky; top: 20px;">
+                <div class="card-title"><i class="fas fa-shopping-bag"></i> Order Summary</div>
+                
+                {% for item in cart %}
+                <div class="summary-item">
+                    <img src="{{ item.img }}" class="summary-img">
+                    <div class="summary-details">
+                        <div class="summary-name">{{ item.name }}</div>
+                        <div class="summary-price">Qty: {{ item.qty }} × Rs. {{ item.price|floatformat:0 }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="summary-row" style="margin-top: 20px;">
+                    <span>Subtotal</span>
+                    <span>Rs. {{ total|floatformat:0 }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Charges</span>
+                    <span style="color: #2ecc71; font-weight: 600;">FREE</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>Total Amount</span>
+                    <span>Rs. {{ total|floatformat:0 }}</span>
+                </div>
+
+                <button type="submit" class="btn-next">Proceed to Payment →</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Default location: Islamabad / Saddar Rawalpindi (33.5971, 73.0489)
+    const defaultLat = 33.5971;
+    const defaultLng = 73.0489;
+
+    const map = L.map('map').setView([defaultLat, defaultLng], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Custom Draggable Gold Marker
+    const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+    // Store coordinates in hidden inputs
+    document.getElementById('map_lat').value = defaultLat;
+    document.getElementById('map_lng').value = defaultLng;
+
+    marker.on('dragend', function (e) {
+        const latLng = marker.getLatLng();
+        document.getElementById('map_lat').value = latLng.lat.toFixed(7);
+        document.getElementById('map_lng').value = latLng.lng.toFixed(7);
+        document.getElementById('mapStatus').innerHTML = 
+            `<i class="fas fa-check-circle" style="color:#2ecc71;"></i> Location pinned: ${latLng.lat.toFixed(4)}, ${latLng.lng.toFixed(4)}`;
+    });
+</script>
+
+</body>
+</html>

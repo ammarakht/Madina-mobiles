@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — Madina Mobile Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px 40px;
+            background: var(--dark-1);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            display: block;
+            font-size: 8px;
+            letter-spacing: 4px;
+            color: var(--gold);
+        }
+
+        .btn-nav {
+            color: var(--grey);
+            text-decoration: none;
+            font-size: 13px;
+            margin-left: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .btn-nav:hover { color: var(--white); }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 30px;
+        }
+
+        .profile-card, .content-card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: #fff;
+            font-size: 28px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .profile-email {
+            font-size: 13px;
+            color: var(--grey);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--grey);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--dark-3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: var(--white);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .form-input:focus { border-color: var(--gold); }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            background: var(--gold);
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 12px;
+        }
+
+        .order-card {
+            background: var(--dark-3);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .order-status {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(192,57,43,0.15);
+            color: var(--gold);
+        }
+
+        .order-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .order-img {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="/" class="brand-logo" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; vertical-align:middle;">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
+        <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+            <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; letter-spacing:1.5px; color:#ffffff; text-transform:uppercase;">Madina</span>
+            <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:9px; letter-spacing:2px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+        </div>
+    </a>
+    <div>
+        <a href="/" class="btn-nav"><i class="fas fa-store"></i> Store</a>
+        <a href="{% url 'my_orders' %}" class="btn-nav"><i class="fas fa-box"></i> My Orders</a>
+        <a href="{% url 'customer_logout' %}" class="btn-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Left Sidebar: Profile Summary -->
+    <div class="profile-card">
+        <div class="avatar-circle">{{ profile.initials }}</div>
+        <h2 class="profile-name">{{ user.get_full_name|default:user.username }}</h2>
+        <p class="profile-email">{{ user.email }}</p>
+
+        {% if messages %}
+            {% for m in messages %}
+                <div class="alert-success">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" name="first_name" value="{{ user.first_name }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input type="text" name="last_name" value="{{ user.last_name }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" value="{{ profile.phone }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">City</label>
+                <input type="text" name="city" value="{{ profile.city }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Default Shipping Address</label>
+                <textarea name="address" class="form-input" rows="3">{{ profile.address }}</textarea>
+            </div>
+            <button type="submit" class="btn-save">Update Profile</button>
+        </form>
+    </div>
+
+    <!-- Right: Order History & Personalization -->
+    <div class="content-card">
+        <h2 class="section-title"><i class="fas fa-shopping-bag"></i> My Order History</h2>
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <strong>Order #{{ order.id }}</strong>
+                        <span style="color:var(--grey); margin-left:10px;">{{ order.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div>
+                        <span class="order-status">{{ order.status }}</span>
+                    </div>
+                </div>
+                <div>
+                    {% for item in order.items.all %}
+                    <div class="order-item">
+                        <img src="{{ item.product.image_url }}" class="order-img">
+                        <div style="flex:1;">
+                            <div style="font-size:13px; font-weight:600;">{{ item.product.name }}</div>
+                            <div style="font-size:12px; color:var(--grey);">Qty: {{ item.quantity }} × Rs. {{ item.price_at_purchase|floatformat:0 }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color:var(--grey); font-size:14px; text-align:center; padding:40px 0;">
+                You haven't placed any orders yet.<br>
+                <a href="/" style="color:var(--gold); text-decoration:none; margin-top:10px; display:inline-block;">Explore Collection →</a>
+            </p>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

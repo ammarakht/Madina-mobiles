@@ -1,0 +1,142 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}All Products — Madina Mobile Admin{% endblock %}
+{% block page_title %}All Products{% endblock %}
+{% block page_breadcrumb %}Catalog → Mobile Inventory{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'admin_product_add' %}" class="topbar-btn">
+    <i class="fas fa-plus"></i> Add New Product
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- Search & Filters -->
+<form method="get" class="search-bar">
+    <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" name="q" class="search-input" placeholder="Search by product name, brand, or SKU..." value="{{ q }}">
+    </div>
+    <select name="cat" class="filter-select" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        {% for category in categories %}
+        <option value="{{ category.slug }}" {% if cat == category.slug %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <select name="stock" class="filter-select" onchange="this.form.submit()">
+        <option value="">All Stock Status</option>
+        <option value="in" {% if stock == 'in' %}selected{% endif %}>In Stock</option>
+        <option value="out" {% if stock == 'out' %}selected{% endif %}>Out of Stock</option>
+    </select>
+    <button type="submit" class="btn btn-outline"><i class="fas fa-filter"></i> Filter</button>
+    {% if q or cat or stock %}
+    <a href="{% url 'admin_product_list' %}" class="btn btn-outline"><i class="fas fa-times"></i> Clear</a>
+    {% endif %}
+</form>
+
+<!-- Product Count -->
+<div style="margin-bottom:16px; font-size:13px; color:var(--text-muted);">
+    Showing <strong style="color:var(--text);">{{ products|length }}</strong> product{% if products|length != 1 %}s{% endif %}
+    {% if q %} for "<strong style="color:var(--gold);">{{ q }}</strong>"{% endif %}
+</div>
+
+<!-- Products Table -->
+<div class="card">
+    {% if products %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:50px;">#</th>
+                    <th>Product Details</th>
+                    <th>Category</th>
+                    <th>Original Price</th>
+                    <th>Sale Price</th>
+                    <th>Discount</th>
+                    <th>Rating</th>
+                    <th>Flags</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td style="color:var(--text-muted); font-size:12px;">{{ forloop.counter }}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:13px;">
+                            <div class="img-preview-wrap" style="width:58px; height:58px; flex-shrink:0;">
+                                {% if p.image_url %}
+                                <img src="{{ p.image_url }}" alt="{{ p.name }}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="img-placeholder" style="display:none; align-items:center; justify-content:center; height:100%;"><i class="fas fa-mobile-alt"></i></div>
+                                {% else %}
+                                <div class="img-placeholder" style="display:flex; align-items:center; justify-content:center; height:100%;"><i class="fas fa-mobile-alt"></i></div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div style="font-weight:600; font-size:13px; margin-bottom:3px;">{{ p.name|truncatechars:40 }}</div>
+                                {% if p.sku %}<div style="font-size:11px; color:var(--text-muted);">SKU: {{ p.sku }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-blue">{{ p.get_category_display|default:p.category|title }}</span>
+                    </td>
+                    <td style="color:var(--text-muted); text-decoration:line-through;">Rs. {{ p.original_price|floatformat:0 }}</td>
+                    <td><strong>Rs. {{ p.sale_price|floatformat:0 }}</strong></td>
+                    <td><span class="badge badge-gold">{{ p.discount_percent }}% OFF</span></td>
+                    <td>
+                        <span style="color:#ffc107;">★</span>
+                        <span style="font-size:12px;">{{ p.rating }}</span>
+                        <span style="font-size:11px; color:var(--text-muted);">({{ p.review_count }})</span>
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                            {% if p.is_flash_sale %}<span class="badge badge-gold"><i class="fas fa-bolt"></i> Flash</span>{% endif %}
+                            {% if p.is_featured %}<span class="badge badge-purple"><i class="fas fa-star"></i> Featured</span>{% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'admin_product_toggle_stock' p.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="badge {% if p.in_stock %}badge-green{% else %}badge-red{% endif %}"
+                                    style="cursor:pointer; border:none; font-family:'Inter',sans-serif;"
+                                    title="Click to toggle stock">
+                                <i class="fas fa-circle" style="font-size:6px;"></i>
+                                {% if p.in_stock %}In Stock{% else %}Out of Stock{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="btn-actions">
+                            <a href="{% url 'admin_product_edit' p.pk %}" class="btn btn-sm btn-blue" data-tip="Edit Product">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="btn btn-sm btn-red" data-tip="Delete Product"
+                                    onclick="confirmDelete('{% url 'admin_product_delete' p.pk %}', '{{ p.name|escapejs }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📱</div>
+        <div class="empty-title">No Products Found</div>
+        <div class="empty-desc">
+            {% if q or cat or stock %}
+                No products match your search. Try changing the filters.
+            {% else %}
+                Your catalog is empty. Start adding products now!
+            {% endif %}
+        </div>
+        <a href="{% url 'admin_product_add' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Add First Product</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

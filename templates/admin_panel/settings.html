@@ -1,0 +1,88 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Site Settings &amp; Sale Timer{% endblock %}
+{% block page_breadcrumb %}Settings / General{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px;">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-sliders-h"></i> System Settings &amp; Sale Management</div>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Section 1: Company Email & SMTP -->
+                <div style="margin-bottom: 28px;">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 8px;">
+                        <i class="fas fa-envelope"></i> 1. Organization Company Email
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+                        Primary email used for customer order receipts, OTP verification codes, and admin alerts.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Company Email Address (Gmail)</label>
+                        <input type="email" name="company_email" class="form-control" value="{{ setting.company_email|default:'' }}" placeholder="orders@gmail.com">
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Google App Password</label>
+                        <input type="password" name="email_password" class="form-control" value="{{ setting.email_password|default:'' }}" placeholder="xxxx xxxx xxxx xxxx" autocomplete="new-password">
+                        <div style="margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;">
+                            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.7;">
+                                <i class="fas fa-info-circle" style="color: var(--gold);"></i>
+                                <strong style="color: var(--text-dim);">How to get your App Password:</strong><br>
+                                1. Go to <strong style="color:var(--blue);">myaccount.google.com</strong> &rarr; Security<br>
+                                2. Enable <strong>2-Step Verification</strong> if not already on<br>
+                                3. Search for <strong>"App Passwords"</strong> in Google Account settings<br>
+                                4. Create a new App Password (select "Mail" &rarr; "Windows Computer")<br>
+                                5. Copy the 16-character password and paste it above
+                            </div>
+                        </div>
+                        {% if setting.email_password %}
+                        <div style="font-size: 11px; color: var(--green); margin-top: 6px;">
+                            <i class="fas fa-check-circle"></i> App Password is configured. Emails will be sent via Gmail SMTP.
+                        </div>
+                        {% else %}
+                        <div style="font-size: 11px; color: var(--orange); margin-top: 6px;">
+                            <i class="fas fa-exclamation-triangle"></i> No App Password set. Verification and order emails will not be delivered to customers.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Section 2: Flash Sale Timer -->
+                <div style="margin-bottom: 28px; border-top: 1px solid var(--card-border); padding-top: 20px;">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 8px;">
+                        <i class="fas fa-clock"></i> 2. Flash Sale Countdown Timer
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+                        Set the exact date &amp; end time for the homepage Flash Sale countdown timer.
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Flash Sale End Date &amp; Time</label>
+                        <input type="datetime-local" name="flash_sale_end_time" class="form-control" value="{{ setting.flash_sale_end_time|date:'Y-m-d\TH:i' }}">
+                        {% if setting.flash_sale_end_time %}
+                        <div style="font-size: 11px; color: var(--gold); margin-top: 6px;">
+                            Currently active sale end time: <strong>{{ setting.flash_sale_end_time|date:"d M Y, h:i A" }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; border-top: 1px solid var(--card-border); padding-top: 20px;">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-save"></i> Save Settings &amp; Timer
+                    </button>
+                    
+                    {% if setting %}
+                    <button type="submit" name="action" value="delete" class="btn btn-red" onclick="return confirm('Are you sure you want to reset site settings?');">
+                        <i class="fas fa-trash"></i> Reset
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

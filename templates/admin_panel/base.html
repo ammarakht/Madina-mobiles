@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Madina Mobile Admin Portal{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-w: 260px;
+            --gold: #c0392b;
+            --gold-light: #e74c3c;
+            --bg: #0d0f14;
+            --sidebar-bg: #080a0f;
+            --card-bg: #13161e;
+            --card-border: rgba(255,255,255,0.06);
+            --text: #e8eaf0;
+            --text-muted: #6b7280;
+            --text-dim: #9ca3af;
+            --green: #10b981;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+            --orange: #f59e0b;
+            --transition: all 0.25s ease;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text);
+        }
+
+        .brand-sub {
+            font-size: 9px;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .brand-badge {
+            margin-top: 10px;
+            display: inline-block;
+            background: rgba(192,57,43,0.12);
+            color: var(--gold);
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            border: 1px solid rgba(192,57,43,0.2);
+        }
+
+        .sidebar-nav { flex: 1; padding: 16px 12px; }
+
+        .nav-section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 12px 12px 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dim);
+            transition: var(--transition);
+            margin-bottom: 2px;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(192,57,43,0.18), rgba(192,57,43,0.08));
+            color: var(--gold);
+            border: 1px solid rgba(192,57,43,0.15);
+        }
+
+        .nav-link i { width: 18px; text-align: center; font-size: 14px; }
+
+        .nav-count {
+            margin-left: auto;
+            background: rgba(255,255,255,0.08);
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .nav-link.active .nav-count {
+            background: rgba(192,57,43,0.2);
+            color: var(--gold);
+        }
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 10px;
+        }
+
+        .user-avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; color: #000; flex-shrink: 0;
+        }
+
+        .user-name { font-size: 12px; font-weight: 600; }
+        .user-role { font-size: 10px; color: var(--text-muted); }
+
+        .btn-logout {
+            display: flex; align-items: center; gap: 8px;
+            width: 100%; padding: 9px 14px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.15);
+            color: var(--red); border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover { background: rgba(239,68,68,0.2); }
+
+        /* ── MAIN ── */
+        .main-wrap {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(13,15,20,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0 32px;
+            height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .topbar-left { display: flex; flex-direction: column; }
+        .page-title { font-size: 18px; font-weight: 700; }
+        .page-breadcrumb { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        .topbar-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, var(--gold), #a5281c);
+            color: #fff; font-size: 12px; font-weight: 700;
+            letter-spacing: 0.5px; border-radius: 8px;
+            border: none; cursor: pointer; transition: var(--transition);
+        }
+
+        .topbar-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(192,57,43,0.3); }
+
+        /* ── CONTENT ── */
+        .content { padding: 28px 32px; flex: 1; }
+
+        /* ── ALERTS ── */
+        .alert {
+            padding: 14px 18px; border-radius: var(--radius);
+            margin-bottom: 22px; font-size: 13px; font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .alert-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+        .alert-error { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+        .alert-close { margin-left: auto; cursor: pointer; opacity: 0.7; background: none; border: none; color: inherit; font-size: 16px; }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .card-title { font-size: 14px; font-weight: 700; }
+        .card-body { padding: 24px; }
+
+        /* ── STATS GRID ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 22px;
+            display: flex; align-items: center; gap: 16px;
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .stat-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+
+        .stat-icon {
+            width: 50px; height: 50px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+
+        .stat-icon.gold { background: rgba(192,57,43,0.15); color: var(--gold); }
+        .stat-icon.green { background: rgba(16,185,129,0.15); color: var(--green); }
+        .stat-icon.red { background: rgba(239,68,68,0.15); color: var(--red); }
+        .stat-icon.blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+        .stat-icon.purple { background: rgba(139,92,246,0.15); color: var(--purple); }
+        .stat-icon.orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+
+        .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ── TABLE ── */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            padding: 12px 16px; text-align: left;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--text-muted);
+            border-bottom: 1px solid var(--card-border);
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+        }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        tbody tr:last-child td { border-bottom: none; }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-green { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+        .badge-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+        .badge-gold { background: rgba(192,57,43,0.15); color: var(--gold); border: 1px solid rgba(192,57,43,0.2); }
+        .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+        .badge-purple { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+        .badge-grey { background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+            border: none; cursor: pointer; transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-sm { padding: 5px 11px; font-size: 11px; border-radius: 6px; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #a5281c); color: #fff; }
+        .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(192,57,43,0.3); }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--text-dim); }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+        .btn-green { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+        .btn-green:hover { background: rgba(16,185,129,0.25); }
+        .btn-red { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: var(--red); }
+        .btn-red:hover { background: rgba(239,68,68,0.22); }
+        .btn-blue { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2); color: var(--blue); }
+        .btn-blue:hover { background: rgba(59,130,246,0.22); }
+        .btn-actions { display: flex; gap: 6px; flex-wrap: nowrap; }
+
+        /* ── FORMS ── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; color: var(--text-dim);
+        }
+        .form-hint { font-size: 11px; color: var(--text-muted); margin-top: -4px; }
+
+        .form-control, .form-input, .form-select {
+            background: rgba(255,255,255,0.04) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 8px !important;
+            color: var(--text) !important;
+            padding: 10px 14px !important;
+            font-size: 13px !important;
+            font-family: 'Inter', sans-serif !important;
+            transition: var(--transition) !important;
+            width: 100% !important;
+        }
+
+        .form-control:focus, .form-input:focus, .form-select:focus {
+            outline: none !important;
+            border-color: rgba(192,57,43,0.5) !important;
+            background: rgba(255,255,255,0.06) !important;
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.1) !important;
+        }
+
+        .form-control::placeholder, .form-input::placeholder { color: var(--text-muted) !important; }
+
+        select.form-control option, select.form-input option, select.form-select option {
+            background: #1a1d26;
+            color: var(--text);
+        }
+
+        .checkbox-group {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; cursor: pointer;
+        }
+
+        .form-check-input {
+            width: 18px !important; height: 18px !important;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+
+        .checkbox-label { font-size: 13px; font-weight: 500; cursor: pointer; }
+
+        /* ── IMAGE PREVIEW ── */
+        .img-preview-wrap {
+            width: 80px; height: 80px; border-radius: 10px;
+            overflow: hidden; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+        }
+        .img-preview-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .img-placeholder { color: var(--text-muted); font-size: 20px; }
+
+        /* ── SEARCH BAR ── */
+        .search-bar {
+            display: flex; gap: 12px; align-items: center;
+            margin-bottom: 22px; flex-wrap: wrap;
+        }
+
+        .search-input-wrap {
+            position: relative; flex: 1; min-width: 200px;
+        }
+
+        .search-input-wrap i {
+            position: absolute; left: 13px; top: 50%;
+            transform: translateY(-50%); color: var(--text-muted); font-size: 13px;
+        }
+
+        .search-input {
+            width: 100%; padding: 10px 14px 10px 38px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif;
+            font-size: 13px; transition: var(--transition);
+        }
+        .search-input:focus { outline: none; border-color: rgba(192,57,43,0.4); }
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .filter-select {
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: var(--text); font-family: 'Inter', sans-serif;
+            font-size: 13px; cursor: pointer;
+        }
+        .filter-select option { background: #1a1d26; }
+        .filter-select:focus { outline: none; border-color: rgba(192,57,43,0.4); }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center; padding: 60px 40px;
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+        .empty-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .empty-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+        /* ── CONFIRM MODAL ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 999;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: #1a1d26; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 32px; max-width: 420px; width: 90%;
+            text-align: center;
+        }
+        .modal-icon { font-size: 40px; margin-bottom: 16px; }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .modal-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+        .modal-actions { display: flex; gap: 12px; justify-content: center; }
+
+        /* ── TOOLTIP ── */
+        [data-tip] { position: relative; }
+        [data-tip]:hover::after {
+            content: attr(data-tip);
+            position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%);
+            background: #333; color: #fff; font-size: 11px; padding: 4px 10px;
+            border-radius: 6px; white-space: nowrap; pointer-events: none; z-index: 10;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+    <div class="sidebar-brand" style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+        <div style="display:inline-flex; align-items:center; gap:8px; justify-content:center; width:100%;">
+            <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:32px; width:auto; display:block;">
+            <div style="display:flex; flex-direction:column; justify-content:center; text-align:left; line-height:1.1;">
+                <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; letter-spacing:1px; color:#ffffff; text-transform:uppercase;">Madina</span>
+                <span style="font-family:'Montserrat',sans-serif; font-weight:500; font-size:7.5px; letter-spacing:1.5px; color:#e74c3c; text-transform:uppercase; margin-top:2px;">Mobile Shop</span>
+            </div>
+        </div>
+        <div class="brand-badge"><i class="fas fa-shield-alt"></i> Admin Portal</div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Main Menu</div>
+
+        <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Dashboard
+        </a>
+
+        <div class="nav-section-label" style="margin-top:12px;">Catalog</div>
+
+        <a href="{% url 'admin_product_list' %}" class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-mobile-alt"></i> Mobile Inventory
+        </a>
+
+        <a href="{% url 'admin_product_add' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_product_add' %}active{% endif %}">
+            <i class="fas fa-plus-circle"></i> Add New Product
+        </a>
+
+        <div class="nav-section-label" style="margin-top:12px;">Content</div>
+
+        <a href="{% url 'admin_category_list' %}" class="nav-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-tags"></i> Categories
+        </a>
+
+        <a href="{% url 'admin_banner_list' %}" class="nav-link {% if 'banner' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-image"></i> Banners & Slides
+        </a>
+
+        <div class="nav-section-label" style="margin-top:12px;">Sales</div>
+
+        <a href="{% url 'admin_order_list' %}" class="nav-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="fas fa-shopping-cart"></i> Customer Orders
+        </a>
+
+        <div class="nav-section-label" style="margin-top:12px;">Settings</div>
+
+        <a href="{% url 'admin_site_settings' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_site_settings' %}active{% endif %}">
+            <i class="fas fa-envelope"></i> Company Email
+        </a>
+
+        <div class="nav-section-label" style="margin-top:12px;">Website</div>
+
+        <a href="/" target="_blank" class="nav-link">
+            <i class="fas fa-external-link-alt"></i> View Live Website
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+            <div>
+                <div class="user-name">{{ request.user.username|title }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+        </div>
+        <a href="{% url 'admin_logout' %}" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</aside>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="main-wrap">
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
+            <div class="page-breadcrumb">{% block page_breadcrumb %}Home{% endblock %}</div>
+        </div>
+        <div class="topbar-right">
+            {% block topbar_action %}
+            <a href="{% url 'admin_product_add' %}" class="topbar-btn">
+                <i class="fas fa-plus"></i> Add New Product
+            </a>
+            {% endblock %}
+        </div>
+    </div>
+
+    <div class="content">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+            <span>{{ message }}</span>
+            <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<!-- ── CONFIRM DELETE MODAL ── -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-icon">🗑️</div>
+        <div class="modal-title">Confirm Delete</div>
+        <div class="modal-desc" id="deleteModalDesc">Are you sure you want to delete this item? This action cannot be undone.</div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+            <form id="deleteForm" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-red"><i class="fas fa-trash"></i> Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(url, itemName) {
+        document.getElementById('deleteForm').action = url;
+        document.getElementById('deleteModalDesc').textContent = `Are you sure you want to delete "${itemName}"? This action cannot be undone.`;
+        document.getElementById('deleteModal').classList.add('open');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('open');
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    // Auto-dismiss alerts after 4 seconds
+    document.querySelectorAll('.alert').forEach(el => {
+        setTimeout(() => el.style.opacity = '0', 3500);
+        setTimeout(() => el.remove(), 4000);
+    });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

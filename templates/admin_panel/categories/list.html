@@ -1,0 +1,62 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Categories — Madina Mobile Admin{% endblock %}
+{% block page_title %}Categories{% endblock %}
+{% block page_breadcrumb %}Content → Categories{% endblock %}
+
+{% block topbar_action %}
+<a href="{% url 'admin_category_add' %}" class="topbar-btn">
+    <i class="fas fa-plus"></i> Add Category
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% if categories %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;">Order</th>
+                    <th>Category Name</th>
+                    <th>Slug</th>
+                    <th>Icon</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr>
+                    <td style="color:var(--text-muted); font-weight:700;">{{ cat.order }}</td>
+                    <td>
+                        <span style="font-weight:600; font-size:14px;">{{ cat.name }}</span>
+                    </td>
+                    <td>
+                        <code style="background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:5px; font-size:12px; color:var(--text-dim);">{{ cat.slug }}</code>
+                    </td>
+                    <td style="font-size:22px;">{{ cat.icon }}</td>
+                    <td>
+                        <div class="btn-actions">
+                            <a href="{% url 'admin_category_edit' cat.pk %}" class="btn btn-sm btn-blue">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button class="btn btn-sm btn-red"
+                                    onclick="confirmDelete('{% url 'admin_category_delete' cat.pk %}', '{{ cat.name|escapejs }}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">🏷️</div>
+        <div class="empty-title">No Categories Yet</div>
+        <div class="empty-desc">Add categories to organize your mobile inventory and accessories.</div>
+        <a href="{% url 'admin_category_add' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Add First Category</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
