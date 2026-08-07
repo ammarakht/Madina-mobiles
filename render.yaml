@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: madina-mobiles
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "python -m gunicorn sveston_watches.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: "False"
