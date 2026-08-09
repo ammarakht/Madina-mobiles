@@ -17,12 +17,14 @@ class ProductForm(forms.ModelForm):
             'sale_price': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'e.g. 419999'}),
             'rating': forms.NumberInput(attrs={'class': 'form-input', 'step': '0.1', 'min': '0', 'max': '5', 'placeholder': '4.8'}),
             'review_count': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'e.g. 142'}),
-            'image_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://...'}),
-            'image2_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://... (optional hover image)'}),
+            'image_url': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'https:// or uploaded file path', 'id': 'id_image_url'}),
+            'image2_url': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'https:// or uploaded file path (optional hover image)', 'id': 'id_image2_url'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['image_url'].required = False
+        self.fields['image2_url'].required = False
         db_categories = Category.objects.all().order_by('order')
         choices = [(cat.slug, cat.name) for cat in db_categories]
         if not choices:
@@ -52,7 +54,11 @@ class BannerForm(forms.ModelForm):
             'subtitle': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Tagline or subtitle text'}),
             'cta_text': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Shop Now'}),
             'cta_link': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. /category/smartphones/'}),
-            'image_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://...'}),
+            'image_url': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'https:// or uploaded file path', 'id': 'id_banner_image_url'}),
             'order': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '0'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image_url'].required = False

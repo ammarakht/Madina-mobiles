@@ -113,9 +113,14 @@ def product_list(request):
 @login_required(login_url='admin_login')
 def product_add(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+            if request.FILES.get('image_file'):
+                product.image_url = save_uploaded_image(request.FILES['image_file'], 'products')
+            if request.FILES.get('image2_file'):
+                product.image2_url = save_uploaded_image(request.FILES['image2_file'], 'products')
+            product.save()
             messages.success(request, '✅ Product added successfully!')
             return redirect('admin_product_list')
     else:
@@ -127,9 +132,14 @@ def product_add(request):
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
-        form = ProductForm(request.POST, instance=product)
+        form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+            if request.FILES.get('image_file'):
+                product.image_url = save_uploaded_image(request.FILES['image_file'], 'products')
+            if request.FILES.get('image2_file'):
+                product.image2_url = save_uploaded_image(request.FILES['image2_file'], 'products')
+            product.save()
             messages.success(request, '✅ Product updated successfully!')
             return redirect('admin_product_list')
     else:
@@ -209,9 +219,12 @@ def banner_list(request):
 @login_required(login_url='admin_login')
 def banner_add(request):
     if request.method == 'POST':
-        form = BannerForm(request.POST)
+        form = BannerForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            banner = form.save(commit=False)
+            if request.FILES.get('image_file'):
+                banner.image_url = save_uploaded_image(request.FILES['image_file'], 'banners')
+            banner.save()
             messages.success(request, '✅ Banner added!')
             return redirect('admin_banner_list')
     else:

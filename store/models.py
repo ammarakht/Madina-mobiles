@@ -32,8 +32,8 @@ class Product(models.Model):
     in_stock = models.BooleanField(default=True)
     is_flash_sale = models.BooleanField(default=False)
     is_featured = models.BooleanField(default=False)
-    image_url = models.URLField(max_length=500, blank=True)
-    image2_url = models.URLField(max_length=500, blank=True)  # hover image
+    image_url = models.CharField(max_length=500, blank=True)
+    image2_url = models.CharField(max_length=500, blank=True)  # hover image
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
@@ -52,7 +52,7 @@ class Banner(models.Model):
     subtitle = models.CharField(max_length=300, blank=True)
     cta_text = models.CharField(max_length=100, default='Shop Now')
     cta_link = models.CharField(max_length=200, default='#')
-    image_url = models.URLField(max_length=500, blank=True)
+    image_url = models.CharField(max_length=500, blank=True)
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 

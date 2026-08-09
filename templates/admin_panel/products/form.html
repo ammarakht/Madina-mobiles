@@ -65,7 +65,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="post" id="productForm">
+<form method="post" id="productForm" enctype="multipart/form-data">
     {% csrf_token %}
     <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px;">
 
@@ -98,18 +98,45 @@
                         </div>
                     </div>
 
+                    <!-- Main Product Image Upload -->
                     <div class="form-group">
-                        <label class="form-label">Image URL *</label>
-                        {{ form.image_url }}
-                        {% if form.image_url.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.image_url.errors|join:", " }}</div>{% endif %}
-                        <span class="form-hint">Direct link to product image URL</span>
+                        <label class="form-label">Product Picture *</label>
+                        <div style="background:rgba(255,255,255,0.03); border:2px dashed rgba(255,255,255,0.12); border-radius:12px; padding:20px; text-align:center; transition:0.2s;" id="uploadDropzone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:36px; color:var(--gold); margin-bottom:10px;"></i>
+                            <div style="font-size:14px; font-weight:600; color:#fff; margin-bottom:6px;">Select or Drop Product Image</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">JPG, PNG, WEBP, GIF up to 10MB</div>
+                            
+                            <label class="btn btn-gold" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:10px 22px; font-size:13px;">
+                                <i class="fas fa-paperclip"></i> Attach / Upload Pic
+                                <input type="file" name="image_file" id="imageFileInput" accept="image/*" style="display:none;">
+                            </label>
+
+                            <div id="fileSelectedBadge" style="display:none; margin-top:12px; font-size:12px; color:var(--green); font-weight:600;">
+                                <i class="fas fa-check-circle"></i> <span id="fileNameDisplay"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Collapsible or Or Image URL -->
+                        <div style="margin-top:10px; font-size:12px;">
+                            <a href="#" id="toggleUrlLink" style="color:var(--gold); text-decoration:underline;">Or use image web URL instead</a>
+                            <div id="urlInputContainer" style="display:none; margin-top:8px;">
+                                {{ form.image_url }}
+                                {% if form.image_url.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.image_url.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
                     </div>
 
+                    <!-- Hover Product Image Upload -->
                     <div class="form-group">
-                        <label class="form-label">Hover Image URL (Optional)</label>
-                        {{ form.image2_url }}
-                        {% if form.image2_url.errors %}<div style="color:var(--red); font-size:11px; margin-top:4px;">{{ form.image2_url.errors|join:", " }}</div>{% endif %}
-                        <span class="form-hint">A second image shown on product hover</span>
+                        <label class="form-label">Hover Picture (Optional)</label>
+                        <div style="display:flex; align-items:center; gap:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 16px;">
+                            <label class="btn btn-outline" style="cursor:pointer; padding:8px 16px; font-size:12px;">
+                                <i class="fas fa-images"></i> Attach Hover Pic
+                                <input type="file" name="image2_file" id="image2FileInput" accept="image/*" style="display:none;">
+                            </label>
+                            <span id="file2NameDisplay" style="font-size:12px; color:var(--text-muted);">No hover file selected</span>
+                        </div>
+                        <div style="margin-top:6px; font-size:11px; color:var(--text-muted);">Shown when user hovers over the product card</div>
                     </div>
 
                 </div>
@@ -251,16 +278,90 @@
 
 {% block extra_js %}
 <script>
-    // Live image preview
+    // Elements for file upload & live preview
+    const imageFileInput = document.getElementById('imageFileInput');
+    const image2FileInput = document.getElementById('image2FileInput');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const fileSelectedBadge = document.getElementById('fileSelectedBadge');
+    const file2NameDisplay = document.getElementById('file2NameDisplay');
+    const toggleUrlLink = document.getElementById('toggleUrlLink');
+    const urlInputContainer = document.getElementById('urlInputContainer');
     const imageInput = document.querySelector('[name="image_url"]');
     const previewImg = document.getElementById('previewImg');
     const previewPlaceholder = document.getElementById('previewPlaceholder');
     const previewImgWrap = document.getElementById('previewImgWrap');
 
+    // Handle File Upload 1 Selection
+    if (imageFileInput) {
+        imageFileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                if (fileNameDisplay) fileNameDisplay.textContent = file.name;
+                if (fileSelectedBadge) fileSelectedBadge.style.display = 'block';
+
+                // Live FileReader Preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewPlaceholder) previewPlaceholder.style.display = 'none';
+                    if (previewImgWrap) previewImgWrap.style.display = 'block';
+                    if (previewImg) previewImg.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Handle File Upload 2 Selection
+    if (image2FileInput) {
+        image2FileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                if (file2NameDisplay) file2NameDisplay.textContent = `Attached: ${this.files[0].name}`;
+            }
+        });
+    }
+
+    // Drag and drop setup
+    const dropzone = document.getElementById('uploadDropzone');
+    if (dropzone && imageFileInput) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = 'var(--gold)';
+                dropzone.style.background = 'rgba(192,57,43,0.08)';
+            }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = 'rgba(255,255,255,0.12)';
+                dropzone.style.background = 'rgba(255,255,255,0.03)';
+            }, false);
+        });
+        dropzone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                imageFileInput.files = files;
+                imageFileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+
+    // Toggle URL Input Container
+    if (toggleUrlLink && urlInputContainer) {
+        toggleUrlLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isHidden = urlInputContainer.style.display === 'none';
+            urlInputContainer.style.display = isHidden ? 'block' : 'none';
+            this.textContent = isHidden ? 'Hide web URL option' : 'Or use image web URL instead';
+        });
+    }
+
+    // URL Input fallback listener
     if (imageInput) {
         imageInput.addEventListener('input', function() {
             const url = this.value.trim();
-            if (url) {
+            if (url && (!imageFileInput.files || imageFileInput.files.length === 0)) {
                 if (previewPlaceholder) previewPlaceholder.style.display = 'none';
                 if (previewImgWrap) previewImgWrap.style.display = 'block';
                 if (previewImg) {
@@ -270,9 +371,6 @@
                         if (previewImgWrap) previewImgWrap.style.display = 'none';
                     };
                 }
-            } else {
-                if (previewPlaceholder) previewPlaceholder.style.display = 'flex';
-                if (previewImgWrap) previewImgWrap.style.display = 'none';
             }
         });
     }
@@ -282,7 +380,7 @@
     const previewName = document.getElementById('previewName');
     if (nameInput && previewName) {
         nameInput.addEventListener('input', function() {
-            previewName.textContent = this.value || 'Watch Name';
+            previewName.textContent = this.value || 'Product Name';
         });
     }
 

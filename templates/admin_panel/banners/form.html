@@ -18,7 +18,7 @@
             <span class="card-title"><i class="fas fa-image" style="color:var(--gold); margin-right:8px;"></i> Banner Details</span>
         </div>
         <div class="card-body">
-            <form method="post" id="bannerForm">
+            <form method="post" id="bannerForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div style="display:flex; flex-direction:column; gap:18px;">
 
@@ -44,14 +44,35 @@
                         <div class="form-group">
                             <label class="form-label">Button Link</label>
                             {{ form.cta_link }}
-                            <span class="form-hint">e.g. /men/ or #flash-sale</span>
+                            <span class="form-hint">e.g. /category/smartphones/</span>
                         </div>
                     </div>
 
+                    <!-- Banner Image Upload -->
                     <div class="form-group">
-                        <label class="form-label">Background Image URL *</label>
-                        {{ form.image_url }}
-                        <span class="form-hint">A wide landscape image works best (1400×600 px or similar)</span>
+                        <label class="form-label">Banner Picture *</label>
+                        <div style="background:rgba(255,255,255,0.03); border:2px dashed rgba(255,255,255,0.12); border-radius:12px; padding:20px; text-align:center; transition:0.2s;" id="bannerUploadDropzone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:36px; color:var(--gold); margin-bottom:10px;"></i>
+                            <div style="font-size:14px; font-weight:600; color:#fff; margin-bottom:6px;">Select or Drop Banner Image</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Wide landscape image works best (1400×600 px)</div>
+                            
+                            <label class="btn btn-gold" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; padding:10px 22px; font-size:13px;">
+                                <i class="fas fa-paperclip"></i> Attach / Upload Pic
+                                <input type="file" name="image_file" id="bannerFileInput" accept="image/*" style="display:none;">
+                            </label>
+
+                            <div id="bannerFileBadge" style="display:none; margin-top:12px; font-size:12px; color:var(--green); font-weight:600;">
+                                <i class="fas fa-check-circle"></i> <span id="bannerFileName"></span>
+                            </div>
+                        </div>
+
+                        <!-- Collapsible URL fallback -->
+                        <div style="margin-top:10px; font-size:12px;">
+                            <a href="#" id="toggleBannerUrl" style="color:var(--gold); text-decoration:underline;">Or use image web URL instead</a>
+                            <div id="bannerUrlContainer" style="display:none; margin-top:8px;">
+                                {{ form.image_url }}
+                            </div>
+                        </div>
                     </div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
@@ -119,6 +140,12 @@
 
 {% block extra_js %}
 <script>
+    const bannerFileInput = document.getElementById('bannerFileInput');
+    const bannerFileName = document.getElementById('bannerFileName');
+    const bannerFileBadge = document.getElementById('bannerFileBadge');
+    const toggleBannerUrl = document.getElementById('toggleBannerUrl');
+    const bannerUrlContainer = document.getElementById('bannerUrlContainer');
+
     const imgInput = document.querySelector('[name="image_url"]');
     const titleInput = document.querySelector('[name="title"]');
     const subtitleInput = document.querySelector('[name="subtitle"]');
@@ -130,10 +157,62 @@
     const prevSubtitle = document.getElementById('prevSubtitle');
     const prevCta = document.getElementById('prevCta');
 
+    if (bannerFileInput) {
+        bannerFileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                if (bannerFileName) bannerFileName.textContent = file.name;
+                if (bannerFileBadge) bannerFileBadge.style.display = 'block';
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    const dropzone = document.getElementById('bannerUploadDropzone');
+    if (dropzone && bannerFileInput) {
+        ['dragenter', 'dragover'].forEach(eName => {
+            dropzone.addEventListener(eName, (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = 'var(--gold)';
+                dropzone.style.background = 'rgba(192,57,43,0.08)';
+            }, false);
+        });
+        ['dragleave', 'drop'].forEach(eName => {
+            dropzone.addEventListener(eName, (e) => {
+                e.preventDefault();
+                dropzone.style.borderColor = 'rgba(255,255,255,0.12)';
+                dropzone.style.background = 'rgba(255,255,255,0.03)';
+            }, false);
+        });
+        dropzone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                bannerFileInput.files = files;
+                bannerFileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+
+    if (toggleBannerUrl && bannerUrlContainer) {
+        toggleBannerUrl.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isHidden = bannerUrlContainer.style.display === 'none';
+            bannerUrlContainer.style.display = isHidden ? 'block' : 'none';
+            this.textContent = isHidden ? 'Hide web URL option' : 'Or use image web URL instead';
+        });
+    }
+
     if (imgInput) {
         imgInput.addEventListener('input', function () {
             const url = this.value.trim();
-            if (url) {
+            if (url && (!bannerFileInput.files || bannerFileInput.files.length === 0)) {
                 previewImg.src = url;
                 previewImg.style.display = 'block';
                 placeholder.style.display = 'none';
@@ -141,12 +220,8 @@
                     previewImg.style.display = 'none';
                     placeholder.style.display = 'flex';
                 };
-            } else {
-                previewImg.style.display = 'none';
-                placeholder.style.display = 'flex';
             }
         });
-        // Init on edit
         if (imgInput.value) {
             previewImg.src = imgInput.value;
             previewImg.style.display = 'block';
