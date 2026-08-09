@@ -559,21 +559,155 @@
         .footer-links a:hover { color: var(--black); padding-left: 5px; }
         .footer-bottom { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: #999; }
 
-        /* Responsive */
+        /* ===================== HAMBURGER BUTTON ===================== */
+        .hamburger-btn {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            gap: 5px;
+            padding: 8px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .hamburger-btn:hover { border-color: var(--gold); background: rgba(192,57,43,0.08); }
+        .hamburger-btn span { display: block; width: 20px; height: 2px; background: var(--white); border-radius: 2px; transition: var(--transition); }
+        .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ===================== MOBILE SIDEBAR ===================== */
+        .mobile-sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            z-index: 1200;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .mobile-sidebar-overlay.open { opacity: 1; }
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
+            background: #0d0d0d;
+            border-right: 1px solid rgba(255,255,255,0.08);
+            z-index: 1300;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        .mobile-sidebar.open { left: 0; }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(0,0,0,0.4);
+            flex-shrink: 0;
+        }
+        .sidebar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .sidebar-logo img { height: 32px; width: auto; }
+        .sidebar-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+        .sidebar-logo-text span:first-child { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 1.5px; color: #ffffff; text-transform: uppercase; }
+        .sidebar-logo-text span:last-child { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 7px; letter-spacing: 2px; color: #e74c3c; text-transform: uppercase; margin-top: 1px; }
+        .sidebar-close {
+            width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%; color: var(--white); font-size: 14px; cursor: pointer; transition: var(--transition);
+        }
+        .sidebar-close:hover { background: var(--gold); border-color: var(--gold); }
+        .sidebar-nav { flex: 1; padding: 10px 0; }
+        .sidebar-nav-item { border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .sidebar-nav-link {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px; font-size: 12px; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--text-light); cursor: pointer;
+            transition: var(--transition); text-decoration: none;
+        }
+        .sidebar-nav-link:hover { color: var(--white); background: rgba(192,57,43,0.07); }
+        .sidebar-nav-link i.nav-icon { width: 20px; color: var(--gold); font-size: 13px; flex-shrink: 0; }
+        .sidebar-nav-link .nav-label { flex: 1; padding-left: 10px; }
+        .sidebar-nav-link .nav-arrow { font-size: 10px; color: var(--grey); transition: transform 0.25s ease; }
+        .sidebar-nav-link.open .nav-arrow { transform: rotate(90deg); color: var(--gold); }
+        .sidebar-nav-link .nav-badge { background: var(--gold); color: #fff; font-size: 8px; font-weight: 800; padding: 2px 6px; border-radius: 20px; letter-spacing: 0.5px; }
+        .sidebar-sub { display: none; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.04); }
+        .sidebar-sub.open { display: block; }
+        .sidebar-sub a { display: block; padding: 11px 20px 11px 50px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--grey); transition: var(--transition); border-bottom: 1px solid rgba(255,255,255,0.03); text-decoration: none; }
+        .sidebar-sub a:hover { color: var(--gold); padding-left: 56px; }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.3); }
+        .sidebar-footer-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-light); text-decoration: none; transition: var(--transition); border: 1px solid rgba(255,255,255,0.06); }
+        .sidebar-footer-link:hover { background: rgba(192,57,43,0.1); border-color: rgba(192,57,43,0.3); color: var(--white); }
+        .sidebar-footer-link i { width: 18px; text-align: center; color: var(--gold); font-size: 14px; }
+        .sidebar-cart-badge { background: var(--gold); color: #fff; font-size: 9px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: auto; }
+
+        /* ===================== RESPONSIVE ===================== */
         @media (max-width: 1100px) {
             .product-grid { grid-template-columns: repeat(3, 1fr); }
             .footer-top { grid-template-columns: 1fr 1fr; }
         }
         @media (max-width: 768px) {
-            .announcement-bar { font-size: 9px; padding: 8px 20px; }
-            .header-inner { padding: 0 20px; }
-            .main-nav { display: none; }
-            .catalog-section { padding: 30px 20px 60px; }
-            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-            .footer-top { grid-template-columns: 1fr; }
+            /* Header */
+            .hamburger-btn { display: flex; }
+            .main-nav { display: none !important; }
+            .header-inner { padding: 0 14px; height: 60px; }
+            .header-icons { gap: 10px; }
+            .header-icon { width: 34px; height: 34px; font-size: 14px; }
+            .theme-toggle { width: 34px; height: 34px; font-size: 14px; }
+            .mobile-sidebar-overlay { display: block; }
+
+            /* Announcement bar */
+            .announcement-bar { font-size: 9px; padding: 7px 14px; justify-content: center; }
+            .announcement-bar span:nth-child(2) { display: none; }
+
+            /* Category banner */
+            .category-banner { padding: 36px 16px; }
+            .category-title { font-size: clamp(22px, 6vw, 36px); letter-spacing: 1.5px; }
+            .category-subtitle { font-size: 12px; }
+            .breadcrumbs { font-size: 10px; }
+
+            /* Filter bar */
+            .filter-bar { padding: 12px 16px; }
+            .filter-bar-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .filter-controls { width: 100%; flex-wrap: wrap; gap: 8px; }
+            .filter-select { flex: 1; min-width: 140px; }
+            .filter-label { font-size: 10px; }
+
+            /* Product grid */
+            .catalog-section { padding: 24px 14px 50px; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .product-info { padding: 11px 11px 13px; }
+            .product-name { font-size: 11.5px; }
+            .price-sale { font-size: 15px; }
+            .add-to-cart-btn { font-size: 9px; padding: 9px; }
+
+            /* Cart drawer */
+            .cart-drawer { width: 100%; right: -100%; }
+
+            /* Footer */
+            .footer { padding: 40px 18px 0; }
+            .footer-top { grid-template-columns: 1fr; gap: 24px; }
+            .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
         }
         @media (max-width: 480px) {
-            .product-grid { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto; }
+            .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .category-title { font-size: clamp(18px, 7vw, 28px); }
+            .header-inner { padding: 0 12px; }
+            .announcement-bar { font-size: 8.5px; }
+            .announcement-bar span:nth-child(3) { display: none; }
         }
     </style>
 </head>
@@ -592,6 +726,11 @@
 <!-- Header -->
 <header class="site-header" id="site-header">
     <div class="header-inner">
+        <!-- Hamburger (mobile only) -->
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span><span></span><span></span>
+        </button>
+
         <!-- Logo -->
         <a href="/" class="logo" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; vertical-align:middle;">
             <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop" style="height:38px; width:auto; display:block;">
@@ -818,7 +957,135 @@
     </div>
 </footer>
 
+<!-- ========== MOBILE SIDEBAR ========== -->
+<div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-logo">
+            <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop">
+            <div class="sidebar-logo-text"><span>Madina</span><span>Mobile Shop</span></div>
+        </a>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="sidebar-nav-item">
+            <div class="sidebar-nav-link" onclick="toggleSidebarSub('sub-smartphones', this)">
+                <i class="fas fa-mobile-alt nav-icon"></i><span class="nav-label">Smartphones</span><i class="fas fa-chevron-right nav-arrow"></i>
+            </div>
+            <div class="sidebar-sub" id="sub-smartphones">
+                <a href="{% url 'category_products' 'smartphones' %}?q=iphone">Apple iPhone</a>
+                <a href="{% url 'category_products' 'smartphones' %}?q=samsung">Samsung Galaxy</a>
+                <a href="{% url 'category_products' 'smartphones' %}?q=xiaomi">Xiaomi / Redmi</a>
+                <a href="{% url 'category_products' 'smartphones' %}?q=infinix">Infinix / Tecno</a>
+                <a href="{% url 'category_products' 'smartphones' %}">View All Smartphones</a>
+            </div>
+        </div>
+        <div class="sidebar-nav-item">
+            <div class="sidebar-nav-link" onclick="toggleSidebarSub('sub-accessories', this)">
+                <i class="fas fa-headphones nav-icon"></i><span class="nav-label">Accessories</span><i class="fas fa-chevron-right nav-arrow"></i>
+            </div>
+            <div class="sidebar-sub" id="sub-accessories">
+                <a href="{% url 'category_products' 'accessories' %}?q=case">Cases &amp; Covers</a>
+                <a href="{% url 'category_products' 'accessories' %}?q=charger">Chargers &amp; Cables</a>
+                <a href="{% url 'category_products' 'accessories' %}?q=glass">Screen Protectors</a>
+                <a href="{% url 'category_products' 'accessories' %}">View All Accessories</a>
+            </div>
+        </div>
+        <div class="sidebar-nav-item">
+            <a href="{% url 'category_products' 'smart-watches' %}" class="sidebar-nav-link">
+                <i class="fas fa-clock nav-icon"></i><span class="nav-label">Smart Watches</span>
+            </a>
+        </div>
+        <div class="sidebar-nav-item">
+            <div class="sidebar-nav-link" onclick="toggleSidebarSub('sub-audio', this)">
+                <i class="fas fa-volume-up nav-icon"></i><span class="nav-label">Audio &amp; Gadgets</span><i class="fas fa-chevron-right nav-arrow"></i>
+            </div>
+            <div class="sidebar-sub" id="sub-audio">
+                <a href="{% url 'category_products' 'audio-gadgets' %}?q=buds">Wireless Earbuds</a>
+                <a href="{% url 'category_products' 'audio-gadgets' %}?q=speaker">Bluetooth Speakers</a>
+                <a href="{% url 'category_products' 'audio-gadgets' %}">View All Gadgets</a>
+            </div>
+        </div>
+        <div class="sidebar-nav-item">
+            <a href="{% url 'category_products' 'best-sellers' %}" class="sidebar-nav-link">
+                <i class="fas fa-trophy nav-icon"></i><span class="nav-label">Best Sellers</span>
+            </a>
+        </div>
+        <div class="sidebar-nav-item">
+            <a href="{% url 'category_products' 'sale' %}" class="sidebar-nav-link">
+                <i class="fas fa-tag nav-icon" style="color:#e74c3c;"></i>
+                <span class="nav-label" style="color:#e74c3c;">Sale Items 🏷️</span>
+                <span class="nav-badge">SALE</span>
+            </a>
+        </div>
+        <div class="sidebar-nav-item">
+            <a href="{% url 'category_products' 'flash-sale' %}" class="sidebar-nav-link">
+                <i class="fas fa-bolt nav-icon" style="color:#e74c3c;"></i>
+                <span class="nav-label" style="color:#e74c3c;">Flash Sale ⚡</span>
+                <span class="nav-badge" style="background:#e74c3c;">HOT</span>
+            </a>
+        </div>
+        <div class="sidebar-nav-item">
+            <a href="{% url 'my_orders' %}" class="sidebar-nav-link">
+                <i class="fas fa-box nav-icon"></i><span class="nav-label">My Orders</span>
+            </a>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        {% if user.is_authenticated %}
+        <a href="{% url 'customer_profile' %}" class="sidebar-footer-link">
+            <i class="fas fa-user-circle"></i> My Account
+        </a>
+        <a href="{% url 'customer_logout' %}" class="sidebar-footer-link">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+        </a>
+        {% else %}
+        <a href="{% url 'customer_login' %}" class="sidebar-footer-link">
+            <i class="fas fa-user"></i> Sign In / Register
+        </a>
+        {% endif %}
+        <div class="sidebar-footer-link" id="sidebarCartBtn" style="cursor:pointer;">
+            <i class="fas fa-shopping-bag"></i> Shopping Cart
+            <span class="sidebar-cart-badge" id="sidebarCartCount">0</span>
+        </div>
+    </div>
+</div>
+
 <script>
+    // ===== MOBILE SIDEBAR =====
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const sidebarCartBtn = document.getElementById('sidebarCartBtn');
+
+    function openSidebar() {
+        mobileSidebar.classList.add('open');
+        sidebarOverlay.classList.add('open');
+        hamburgerBtn.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        mobileSidebar.classList.remove('open');
+        sidebarOverlay.classList.remove('open');
+        hamburgerBtn.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+    if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+    if (sidebarCartBtn) sidebarCartBtn.addEventListener('click', function() {
+        closeSidebar();
+        openCartDrawer();
+    });
+    function toggleSidebarSub(id, triggerEl) {
+        const sub = document.getElementById(id);
+        const isOpen = sub.classList.contains('open');
+        document.querySelectorAll('.sidebar-sub').forEach(s => s.classList.remove('open'));
+        document.querySelectorAll('.sidebar-nav-link').forEach(l => l.classList.remove('open'));
+        if (!isOpen) { sub.classList.add('open'); triggerEl.classList.add('open'); }
+    }
+
     // ===== CART SYSTEM =====
     let cart = JSON.parse(localStorage.getItem('madina_cart')) || [];
 
