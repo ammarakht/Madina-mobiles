@@ -300,10 +300,9 @@
                         <strong>🏦 Store Bank Account Details:</strong><br>
                         • <strong>Bank Name:</strong> Meezan Bank Ltd.<br>
                         • <strong>Account Title:</strong> Madina Mobile Shop<br>
-                        • <strong>Account Number:</strong> 01020304050607<br>
-                        • <strong>IBAN:</strong> PK36MEZN0001020304050607<br>
+                        • <strong>WhatsApp Contact for Proof:</strong> {{ company_phone|default:'03407608138' }}<br>
                         <span style="color:var(--grey); font-size:11px; margin-top:6px; display:block;">
-                            Please share payment proof with order number after placing order.
+                            Please share payment proof with order number on WhatsApp ({{ company_phone|default:'03407608138' }}) after placing order.
                         </span>
                     </div>
 
@@ -313,10 +312,20 @@
                             <div class="payment-icon"><i class="fas fa-mobile-alt"></i></div>
                             <div class="payment-info">
                                 <div class="payment-name">JazzCash Wallet</div>
-                                <div class="payment-desc">Pay via JazzCash mobile wallet</div>
+                                <div class="payment-desc">Send payment to <strong>{{ company_phone|default:'03407608138' }}</strong></div>
                             </div>
                         </div>
                         <div class="radio-dot"></div>
+                    </div>
+
+                    <!-- JazzCash Details Box -->
+                    <div class="bank-details" id="jazzcashInfo">
+                        <strong>📱 JazzCash Account Details:</strong><br>
+                        • <strong>Account Number:</strong> {{ company_phone|default:'03407608138' }}<br>
+                        • <strong>Account Title:</strong> Madina Mobile Shop<br>
+                        <span style="color:var(--grey); font-size:11px; margin-top:6px; display:block;">
+                            After placing order, send payment to {{ company_phone|default:'03407608138' }} and send screenshot on WhatsApp.
+                        </span>
                     </div>
 
                     <!-- EasyPaisa -->
@@ -325,10 +334,20 @@
                             <div class="payment-icon"><i class="fas fa-wallet"></i></div>
                             <div class="payment-info">
                                 <div class="payment-name">EasyPaisa Wallet</div>
-                                <div class="payment-desc">Pay via EasyPaisa mobile wallet</div>
+                                <div class="payment-desc">Send payment to <strong>{{ company_phone|default:'03407608138' }}</strong></div>
                             </div>
                         </div>
                         <div class="radio-dot"></div>
+                    </div>
+
+                    <!-- EasyPaisa Details Box -->
+                    <div class="bank-details" id="easypaisaInfo">
+                        <strong>💚 EasyPaisa Account Details:</strong><br>
+                        • <strong>Account Number:</strong> {{ company_phone|default:'03407608138' }}<br>
+                        • <strong>Account Title:</strong> Madina Mobile Shop<br>
+                        <span style="color:var(--grey); font-size:11px; margin-top:6px; display:block;">
+                            After placing order, send payment to {{ company_phone|default:'03407608138' }} and send screenshot on WhatsApp.
+                        </span>
                     </div>
                 </div>
             </div>
@@ -377,11 +396,12 @@
         }
 
         const bankInfo = document.getElementById('bankInfo');
-        if (method === 'bank') {
-            bankInfo.style.display = 'block';
-        } else {
-            bankInfo.style.display = 'none';
-        }
+        const jazzcashInfo = document.getElementById('jazzcashInfo');
+        const easypaisaInfo = document.getElementById('easypaisaInfo');
+
+        if (bankInfo) bankInfo.style.display = (method === 'bank') ? 'block' : 'none';
+        if (jazzcashInfo) jazzcashInfo.style.display = (method === 'jazzcash') ? 'block' : 'none';
+        if (easypaisaInfo) easypaisaInfo.style.display = (method === 'easypaisa') ? 'block' : 'none';
     }
 </script>
 

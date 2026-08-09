@@ -295,11 +295,14 @@ def checkout_payment(request):
 
     total = sum(float(item.get('price', 0)) * int(item.get('qty', 1)) for item in cart)
 
+    company_phone = SiteSettings.get_phone()
+
     return render(request, 'checkout/payment.html', {
         'cart': cart,
         'total': total,
         'address': address,
         'payment_choices': Order.PAYMENT_CHOICES,
+        'company_phone': company_phone,
         'error': error,
     })
 
@@ -314,7 +317,7 @@ def checkout_confirm(request, token):
     
     whatsapp_url = None
     if order.payment_method in ['bank', 'easypaisa', 'jazzcash']:
-        phone = "923407608138"
+        phone = SiteSettings.get_whatsapp_phone()
         payment_name = order.get_payment_method_display()
         items_list = ", ".join([f"{item.product.name} (x{item.quantity})" for item in order.items.all()]) or "Mobile Purchase"
         
@@ -335,6 +338,7 @@ def checkout_confirm(request, token):
     return render(request, 'checkout/confirm.html', {
         'order': order,
         'whatsapp_url': whatsapp_url,
+        'company_phone': SiteSettings.get_phone(),
     })
 
 

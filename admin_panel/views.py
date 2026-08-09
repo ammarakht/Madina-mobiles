@@ -322,6 +322,7 @@ def site_settings(request):
 
     if request.method == 'POST':
         email = request.POST.get('company_email', '').strip()
+        phone = request.POST.get('company_phone', '').strip()
         email_password = request.POST.get('email_password', '').strip()
         sale_end_str = request.POST.get('flash_sale_end_time', '').strip()
         action = request.POST.get('action', '')
@@ -335,13 +336,14 @@ def site_settings(request):
 
         if setting_obj:
             setting_obj.company_email = email if email else setting_obj.company_email
+            setting_obj.company_phone = phone if phone else setting_obj.company_phone
             setting_obj.email_password = email_password
             setting_obj.flash_sale_end_time = sale_end_dt
             setting_obj.save()
-            messages.success(request, '✅ Site Settings & Flash Sale Timer updated successfully!')
+            messages.success(request, '✅ Site Settings, Phone Number & Flash Sale Timer updated successfully!')
         else:
-            SiteSettings.objects.create(company_email=email, email_password=email_password, flash_sale_end_time=sale_end_dt)
-            messages.success(request, '✅ Site Settings & Flash Sale Timer saved successfully!')
+            SiteSettings.objects.create(company_email=email, company_phone=phone, email_password=email_password, flash_sale_end_time=sale_end_dt)
+            messages.success(request, '✅ Site Settings, Phone Number & Flash Sale Timer saved successfully!')
             
         return redirect('admin_site_settings')
 

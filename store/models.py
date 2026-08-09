@@ -90,9 +90,10 @@ class ProductView(models.Model):
 class SiteSettings(models.Model):
     """
     Global site configuration. Only ONE record should exist at a time.
-    Used by admin portal to set company email and flash sale timer.
+    Used by admin portal to set company email, phone number, and flash sale timer.
     """
     company_email = models.EmailField(blank=True, null=True)
+    company_phone = models.CharField(max_length=50, blank=True, null=True, default='03407608138')
     email_password = models.CharField(max_length=200, blank=True, null=True)
     flash_sale_end_time = models.DateTimeField(blank=True, null=True)
     label = models.CharField(max_length=100, default='Site Settings', blank=True)
@@ -103,13 +104,32 @@ class SiteSettings(models.Model):
         verbose_name_plural = 'Site Settings'
 
     def __str__(self):
-        return f"Site Settings ({self.company_email})"
+        return f"Site Settings ({self.company_email} / {self.company_phone})"
 
     @classmethod
     def get_email(cls):
         """Returns the configured company email, or None if not set."""
         obj = cls.objects.first()
         return obj.company_email if obj else None
+
+    @classmethod
+    def get_phone(cls):
+        """Returns the configured company phone, or default."""
+        obj = cls.objects.first()
+        if obj and obj.company_phone:
+            return obj.company_phone
+        return '03407608138'
+
+    @classmethod
+    def get_whatsapp_phone(cls):
+        """Returns formatted international digits for wa.me link e.g. 923407608138."""
+        phone = cls.get_phone()
+        digits = ''.join(filter(str.isdigit, phone))
+        if digits.startswith('0'):
+            digits = '92' + digits[1:]
+        elif not digits.startswith('92'):
+            digits = '92' + digits
+        return digits
 
     @classmethod
     def get_flash_sale_end(cls):
