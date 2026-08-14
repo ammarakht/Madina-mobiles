@@ -255,14 +255,14 @@ def my_orders(request):
         if q:
             found_orders = Order.objects.filter(
                 Q(id__icontains=q) | Q(guest_email__iexact=q) | Q(guest_phone__icontains=q) | Q(tracking_token__icontains=q)
-            ).prefetch_related('items__product').order_by('-created_at')[:5]
+            ).prefetch_related('items__product', 'items__feedback__images').order_by('-created_at')[:5]
         return render(request, 'accounts/my_orders.html', {
             'is_guest': True,
             'q': q,
             'orders': found_orders,
         })
 
-    user_orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
+    user_orders = Order.objects.filter(user=request.user).prefetch_related('items__product', 'items__feedback__images').order_by('-created_at')
     
     active_statuses = ['pending', 'confirmed', 'processing', 'shipped', 'out_for_delivery']
     active_orders = [o for o in user_orders if o.status in active_statuses]

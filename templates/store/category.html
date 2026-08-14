@@ -24,6 +24,42 @@
             --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* ===================== LUXURY ANIMATIONS ===================== */
+        /* 1. Page Load Transition */
+        body {
+            opacity: 0;
+            animation: fadeInPage 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeInPage {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* 2. Scroll Reveal */
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 3. Premium Glassmorphism */
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        [data-theme="light"] .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        }
+
         /* ===================== LIGHT MODE OVERRIDES ===================== */
         [data-theme="light"] {
             --black: #ffffff;
@@ -368,9 +404,9 @@
             position: relative;
         }
         .product-card:hover {
-            border-color: rgba(192,57,43,0.3);
-            transform: translateY(-5px);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            border-color: rgba(192,57,43,0.5);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(192,57,43,0.25);
         }
 
         .product-image-wrap {
@@ -710,6 +746,107 @@
             .announcement-bar span:nth-child(3) { display: none; }
         }
     </style>
+
+    <!-- Quick View Modal Styles (shared) -->
+    <style>
+        .qv-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.82); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:9000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity 0.35s ease,visibility 0.35s ease; padding:20px; }
+        .qv-overlay.open { opacity:1; visibility:visible; }
+        .qv-modal { background:#111111; border:1px solid rgba(255,255,255,0.08); border-radius:16px; max-width:900px; width:100%; max-height:90vh; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; box-shadow:0 40px 100px rgba(0,0,0,0.9),0 0 60px rgba(192,57,43,0.15); transform:scale(0.93) translateY(20px); transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); position:relative; scrollbar-width:thin; scrollbar-color:rgba(192,57,43,0.5) transparent; }
+        .qv-overlay.open .qv-modal { transform:scale(1) translateY(0); }
+        .qv-modal::-webkit-scrollbar { width:4px; } .qv-modal::-webkit-scrollbar-thumb { background:rgba(192,57,43,0.5); border-radius:4px; }
+        .qv-gallery { position:relative; background:#0a0a0a; border-radius:16px 0 0 16px; overflow:hidden; min-height:380px; }
+        .qv-gallery-main { width:100%; height:100%; min-height:380px; position:relative; overflow:hidden; }
+        .qv-gallery-slide { position:absolute; inset:0; opacity:0; transition:opacity 0.6s ease; }
+        .qv-gallery-slide.active { opacity:1; }
+        .qv-gallery-slide img { width:100%; height:100%; object-fit:cover; display:block; }
+        .qv-badge-flash { position:absolute; top:16px; left:16px; background:#e74c3c; color:#fff; font-size:9px; font-weight:800; letter-spacing:1px; padding:5px 10px; border-radius:20px; text-transform:uppercase; z-index:2; display:none; }
+        .qv-badge-featured { position:absolute; top:16px; right:50px; background:rgba(192,57,43,0.9); color:#fff; font-size:9px; font-weight:800; letter-spacing:1px; padding:5px 10px; border-radius:20px; text-transform:uppercase; z-index:2; display:none; }
+        .qv-badge-discount { position:absolute; bottom:16px; left:16px; background:#c0392b; color:#fff; font-size:14px; font-weight:900; padding:8px 14px; border-radius:8px; z-index:2; display:none; }
+        .qv-gallery-dots { position:absolute; bottom:16px; right:16px; display:flex; gap:6px; z-index:3; }
+        .qv-dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.35); cursor:pointer; transition:all 0.25s ease; }
+        .qv-dot.active { background:#c0392b; transform:scale(1.3); }
+        .qv-gallery-arrow { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.12); color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:3; font-size:11px; transition:all 0.2s ease; }
+        .qv-gallery-arrow:hover { background:#c0392b; border-color:#c0392b; }
+        .qv-gallery-arrow.prev { left:12px; } .qv-gallery-arrow.next { right:12px; }
+        .qv-gallery-progress { position:absolute; bottom:0; left:0; height:3px; background:#c0392b; width:0%; z-index:4; }
+        .qv-info { padding:32px 28px; display:flex; flex-direction:column; gap:0; overflow-y:auto; }
+        .qv-close { position:absolute; top:14px; right:14px; width:34px; height:34px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:50%; color:#fff; font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; transition:all 0.25s ease; }
+        .qv-close:hover { background:#c0392b; border-color:#c0392b; }
+        .qv-category { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#c0392b; margin-bottom:10px; }
+        .qv-name { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:800; color:#ffffff; line-height:1.3; margin-bottom:12px; letter-spacing:0.3px; }
+        .qv-rating { display:flex; align-items:center; gap:8px; margin-bottom:18px; }
+        .qv-stars { color:#f39c12; font-size:13px; letter-spacing:2px; } .qv-rating-text { font-size:12px; color:#888; }
+        .qv-price-block { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.07); flex-wrap:wrap; }
+        .qv-price-sale { font-family:'Montserrat',sans-serif; font-size:30px; font-weight:900; color:#ffffff; }
+        .qv-price-original { font-size:16px; color:#555; text-decoration:line-through; }
+        .qv-price-save { font-size:11px; font-weight:700; color:#2ecc71; background:rgba(46,204,113,0.1); padding:3px 8px; border-radius:20px; letter-spacing:0.5px; }
+        .qv-details { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+        .qv-detail-item { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px 14px; }
+        .qv-detail-label { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#555; margin-bottom:4px; }
+        .qv-detail-value { font-size:12px; font-weight:700; color:#ccc; }
+        .qv-detail-value.green { color:#2ecc71; } .qv-detail-value.red { color:#e74c3c; } .qv-detail-value.gold { color:#c0392b; }
+        .qv-stock { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; margin-bottom:22px; }
+        .qv-stock-dot { width:9px; height:9px; border-radius:50%; background:#2ecc71; box-shadow:0 0 8px rgba(46,204,113,0.6); animation:pulse-stock 2s infinite; }
+        .qv-stock-dot.out { background:#e74c3c; box-shadow:0 0 8px rgba(231,76,60,0.6); animation:none; }
+        @keyframes pulse-stock { 0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.3);opacity:0.7;} }
+        .qv-actions { display:flex; flex-direction:column; gap:10px; margin-top:auto; }
+        .qv-btn-cart { width:100%; padding:15px; background:#c0392b; color:#fff; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border:none; border-radius:50px; cursor:pointer; transition:all 0.3s ease; display:flex; align-items:center; justify-content:center; gap:10px; }
+        .qv-btn-cart:hover { background:#e74c3c; transform:translateY(-2px); box-shadow:0 10px 30px rgba(192,57,43,0.4); }
+        .qv-btn-checkout { width:100%; padding:13px; background:transparent; color:#ccc; font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.15); border-radius:50px; cursor:pointer; transition:all 0.3s ease; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .qv-btn-checkout:hover { border-color:rgba(255,255,255,0.4); color:#fff; background:rgba(255,255,255,0.04); }
+        @media (max-width:680px) { .qv-modal{grid-template-columns:1fr;max-height:95vh;} .qv-gallery{border-radius:16px 16px 0 0;min-height:280px;} .qv-gallery-main{min-height:280px;} .qv-info{padding:22px 18px;} .qv-name{font-size:18px;} .qv-price-sale{font-size:24px;} }
+        [data-theme="light"] .qv-modal { background:#ffffff; border-color:rgba(0,0,0,0.08); }
+        [data-theme="light"] .qv-gallery { background:#f0f0f0; }
+        [data-theme="light"] .qv-name { color:#111; }
+        [data-theme="light"] .qv-detail-item { background:rgba(0,0,0,0.03); border-color:rgba(0,0,0,0.06); }
+        [data-theme="light"] .qv-detail-value { color:#333; }
+
+        .qv-btn-feedback {
+            width: 100%;
+            padding: 13px;
+            background: rgba(192, 57, 43, 0.1);
+            color: #e74c3c;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(192, 57, 43, 0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .qv-btn-feedback:hover:not(:disabled) {
+            background: #c0392b;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(192, 57, 43, 0.3);
+        }
+        .qv-btn-feedback:disabled {
+            background: rgba(255, 255, 255, 0.03);
+            color: #666;
+            border-color: rgba(255, 255, 255, 0.08);
+            cursor: not-allowed;
+        }
+        [data-theme="light"] .qv-btn-feedback {
+            background: rgba(192, 57, 43, 0.05);
+            color: #c0392b;
+            border-color: rgba(192, 57, 43, 0.2);
+        }
+        [data-theme="light"] .qv-btn-feedback:hover:not(:disabled) {
+            background: #c0392b;
+            color: #fff;
+        }
+        [data-theme="light"] .qv-btn-feedback:disabled {
+            background: rgba(0, 0, 0, 0.03);
+            color: #999;
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+    </style>
 </head>
 <body>
 
@@ -787,6 +924,9 @@
             <div class="nav-item">
                 <a href="{% url 'my_orders' %}" class="nav-link"><i class="fas fa-box" style="margin-right:4px;"></i> My Orders</a>
             </div>
+            <div class="nav-item">
+                <a href="{% url 'track_order_search' %}" class="nav-link"><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i> Track Order</a>
+            </div>
         </nav>
 
         <!-- Header Icons -->
@@ -844,7 +984,7 @@
 </div>
 
 <!-- Product Grid Catalog -->
-<div class="catalog-section">
+<div class="catalog-section reveal-up">
     <div class="product-grid">
         {% for product in products %}
         <div class="product-card" data-product-id="{{ product.id }}">
@@ -1028,6 +1168,11 @@
         <div class="sidebar-nav-item">
             <a href="{% url 'my_orders' %}" class="sidebar-nav-link">
                 <i class="fas fa-box nav-icon"></i><span class="nav-label">My Orders</span>
+            </a>
+        </div>
+        <div class="sidebar-nav-item">
+            <a href="{% url 'track_order_search' %}" class="sidebar-nav-link">
+                <i class="fas fa-map-marker-alt nav-icon"></i><span class="nav-label">Track Order</span>
             </a>
         </div>
     </nav>
@@ -1239,7 +1384,207 @@
     })();
 
     updateCartUI();
+    // Search Overlay
+    const searchIcon = document.getElementById('search-icon');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Implement search overlay toggle here if added to category.html
+            console.log("Search clicked");
+        });
+    }
+
+    // ===== LUXURY ANIMATIONS: SCROLL REVEAL =====
+    (function() {
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            });
+            
+            document.querySelectorAll('.reveal-up').forEach((el) => {
+                observer.observe(el);
+            });
+        } else {
+            document.querySelectorAll('.reveal-up').forEach((el) => {
+                el.classList.add('active');
+            });
+        }
+    })();
 </script>
 
 </body>
 </html>
+
+<!-- ========== QUICK VIEW POPUP MODAL ========== -->
+<div class="qv-overlay" id="qvOverlay">
+    <div class="qv-modal" id="qvModal" role="dialog" aria-modal="true" aria-label="Product Quick View">
+        <button class="qv-close" id="qvClose" aria-label="Close quick view"><i class="fas fa-times"></i></button>
+        <div class="qv-gallery" id="qvGallery">
+            <div class="qv-gallery-main" id="qvGalleryMain"></div>
+            <div class="qv-badge-flash" id="qvBadgeFlash">⚡ Flash Sale</div>
+            <div class="qv-badge-featured" id="qvBadgeFeatured">★ Featured</div>
+            <div class="qv-badge-discount" id="qvBadgeDiscount"></div>
+            <button class="qv-gallery-arrow prev" id="qvPrev"><i class="fas fa-chevron-left"></i></button>
+            <button class="qv-gallery-arrow next" id="qvNext"><i class="fas fa-chevron-right"></i></button>
+            <div class="qv-gallery-dots" id="qvDots"></div>
+            <div class="qv-gallery-progress" id="qvProgress"></div>
+        </div>
+        <div class="qv-info" id="qvInfo"></div>
+    </div>
+</div>
+
+<!-- ========== FEEDBACK LIST MODAL ========== -->
+<div class="feedback-overlay" id="feedbackOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(8px);">
+    <div class="feedback-modal-box" style="background:#111111; border:1px solid rgba(255,255,255,0.08); border-radius:16px; max-width:600px; width:100%; max-height:80vh; overflow-y:auto; padding:30px; box-shadow:0 40px 100px rgba(0,0,0,0.9); position:relative; scrollbar-width:thin; scrollbar-color:rgba(192,57,43,0.5) transparent;">
+        <button id="feedbackClose" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--grey); font-size:20px; cursor:pointer; transition:color 0.3s;" aria-label="Close feedback popup"><i class="fas fa-times"></i></button>
+        <h2 id="feedbackModalTitle" style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:20px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px; color:var(--white);">Buyer Reviews</h2>
+        <div id="feedbackListContainer" style="display:flex; flex-direction:column; gap:16px;"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const overlay=document.getElementById('qvOverlay'),closeBtn=document.getElementById('qvClose'),galleryEl=document.getElementById('qvGalleryMain'),dotsEl=document.getElementById('qvDots'),infoEl=document.getElementById('qvInfo'),progressEl=document.getElementById('qvProgress'),prevBtn=document.getElementById('qvPrev'),nextBtn=document.getElementById('qvNext');
+    let currentSlide=0,images=[],autoTimer=null,currentFeedbacks=[];
+    const AUTO_INTERVAL=3500;
+
+    function openQuickView(pid){
+        fetch('/api/product/'+pid+'/')
+            .then(r=>r.json())
+            .then(p=>{renderModal(p);overlay.classList.add('open');document.body.style.overflow='hidden';})
+            .catch(()=>console.warn('QV fetch failed'));
+    }
+    function closeQuickView(){overlay.classList.remove('open');document.body.style.overflow='';stopAuto();}
+    closeBtn.addEventListener('click',closeQuickView);
+    overlay.addEventListener('click',function(e){if(e.target===overlay)closeQuickView();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeQuickView();});
+
+    function renderModal(p){
+        images=p.images&&p.images.length>0?p.images:['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=600&fit=crop'];
+        currentSlide=0;
+        currentFeedbacks=p.feedbacks || [];
+        galleryEl.innerHTML=images.map((s,i)=>`<div class="qv-gallery-slide ${i===0?'active':''}" data-index="${i}"><img src="${s}" alt="Product image ${i+1}" loading="${i===0?'eager':'lazy'}"></div>`).join('');
+        dotsEl.innerHTML=images.map((_,i)=>`<div class="qv-dot ${i===0?'active':''}" data-index="${i}"></div>`).join('');
+        dotsEl.querySelectorAll('.qv-dot').forEach(d=>d.addEventListener('click',()=>goToSlide(parseInt(d.dataset.index))));
+        prevBtn.style.display=images.length>1?'flex':'none';
+        nextBtn.style.display=images.length>1?'flex':'none';
+        document.getElementById('qvBadgeFlash').style.display=p.is_flash_sale?'block':'none';
+        document.getElementById('qvBadgeFeatured').style.display=p.is_featured?'block':'none';
+        const db=document.getElementById('qvBadgeDiscount');
+        if(p.discount_percent>0){db.textContent='-'+p.discount_percent+'% OFF';db.style.display='block';}else{db.style.display='none';}
+        const stars=Math.round(p.rating),starsHtml='★'.repeat(stars)+'☆'.repeat(5-stars),savings=p.original_price-p.sale_price;
+        infoEl.innerHTML=`
+            <div class="qv-category">${p.category}</div>
+            <h2 class="qv-name">${p.name}</h2>
+            <div class="qv-rating"><span class="qv-stars">${starsHtml}</span><span class="qv-rating-text">${p.rating}/5.0 · ${p.review_count} reviews</span></div>
+            <div class="qv-price-block">
+                <span class="qv-price-sale">Rs. ${fmt(p.sale_price)}</span>
+                ${p.original_price>p.sale_price?`<span class="qv-price-original">Rs. ${fmt(p.original_price)}</span>`:''}
+                ${savings>0?`<span class="qv-price-save">Save Rs. ${fmt(savings)}</span>`:''}
+            </div>
+            <div class="qv-details">
+                <div class="qv-detail-item"><div class="qv-detail-label">SKU</div><div class="qv-detail-value">${p.sku}</div></div>
+                <div class="qv-detail-item"><div class="qv-detail-label">Category</div><div class="qv-detail-value gold">${p.category}</div></div>
+                <div class="qv-detail-item"><div class="qv-detail-label">Rating</div><div class="qv-detail-value gold">⭐ ${p.rating}/5.0</div></div>
+                <div class="qv-detail-item"><div class="qv-detail-label">Reviews</div><div class="qv-detail-value">${p.review_count} customers</div></div>
+                <div class="qv-detail-item"><div class="qv-detail-label">Stock</div><div class="qv-detail-value ${p.in_stock?'green':'red'}">${p.in_stock?'✓ In Stock':'✗ Out of Stock'}</div></div>
+                <div class="qv-detail-item"><div class="qv-detail-label">Discount</div><div class="qv-detail-value ${p.discount_percent>0?'red':''}">${p.discount_percent>0?p.discount_percent+'% OFF':'No discount'}</div></div>
+                ${p.is_flash_sale?`<div class="qv-detail-item" style="grid-column:1/-1;border-color:rgba(231,76,60,0.3);background:rgba(231,76,60,0.05);"><div class="qv-detail-label">Sale Type</div><div class="qv-detail-value red">⚡ Flash Sale — Limited Time!</div></div>`:''}
+                ${p.is_featured?`<div class="qv-detail-item" style="grid-column:1/-1;border-color:rgba(192,57,43,0.3);background:rgba(192,57,43,0.05);"><div class="qv-detail-label">Badge</div><div class="qv-detail-value gold">★ Featured / Staff Pick</div></div>`:''}
+            </div>
+            <div class="qv-stock"><div class="qv-stock-dot ${p.in_stock?'':'out'}"></div><span style="color:${p.in_stock?'#2ecc71':'#e74c3c'}">${p.in_stock?'In Stock — Ready to Ship':'Out of Stock'}</span></div>
+            <div class="qv-actions">
+                <button class="qv-btn-cart" onclick="addToCart(${p.id},'${esc(p.name)}',${p.sale_price},'${esc(images[0])}');document.getElementById('qvClose').click();"><i class="fas fa-shopping-bag"></i> Add to Cart</button>
+                <button class="qv-btn-checkout" onclick="addToCart(${p.id},'${esc(p.name)}',${p.sale_price},'${esc(images[0])}');window.location.href='/checkout/start/';"><i class="fas fa-bolt"></i> Buy Now — Rs. ${fmt(p.sale_price)}</button>
+                <button class="qv-btn-feedback" id="qvBtnFeedback" ${!p.feedbacks || p.feedbacks.length === 0 ? 'disabled' : ''} onclick="openFeedbackModal()"><i class="fas fa-star"></i> ${!p.feedbacks || p.feedbacks.length === 0 ? 'No Feedback' : `Feedback (${p.feedbacks.length})`}</button>
+            </div>`;
+        stopAuto();if(images.length>1)startAuto();
+    }
+
+    function goToSlide(idx){
+        const sl=galleryEl.querySelectorAll('.qv-gallery-slide'),dt=dotsEl.querySelectorAll('.qv-dot');
+        if(!sl.length)return;
+        sl[currentSlide].classList.remove('active');dt[currentSlide]?.classList.remove('active');
+        currentSlide=(idx+sl.length)%sl.length;
+        sl[currentSlide].classList.add('active');dt[currentSlide]?.classList.add('active');
+        resetProg();
+    }
+    prevBtn.addEventListener('click',()=>{stopAuto();goToSlide(currentSlide-1);startAuto();});
+    nextBtn.addEventListener('click',()=>{stopAuto();goToSlide(currentSlide+1);startAuto();});
+
+    function startAuto(){if(images.length<=1)return;resetProg();progressEl.style.transition='width '+AUTO_INTERVAL+'ms linear';progressEl.style.width='100%';autoTimer=setTimeout(()=>{goToSlide(currentSlide+1);startAuto();},AUTO_INTERVAL);}
+    function stopAuto(){clearTimeout(autoTimer);resetProg();}
+    function resetProg(){progressEl.style.transition='none';progressEl.style.width='0%';}
+    function fmt(n){return Math.round(n).toLocaleString('en-PK');}
+    function esc(s){return String(s).replace(/'/g,"\\'");}
+
+    document.addEventListener('click',function(e){
+        const card=e.target.closest('.product-card');
+        if(!card)return;
+        if(e.target.closest('.add-to-cart-btn,.product-action-btn'))return;
+        const pid=card.dataset.productId;
+        if(pid){e.preventDefault();openQuickView(pid);}
+    });
+    function openFeedbackModal() {
+        const container = document.getElementById('feedbackListContainer');
+        const overlay = document.getElementById('feedbackOverlay');
+        
+        container.innerHTML = '';
+        
+        if (currentFeedbacks.length === 0) {
+            container.innerHTML = '<div style="color:var(--grey); text-align:center; padding:20px;">No feedback available yet.</div>';
+        } else {
+            currentFeedbacks.forEach(f => {
+                const starsHtml = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+                
+                let imagesHtml = '';
+                if (f.images && f.images.length > 0) {
+                    imagesHtml = `
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                            ${f.images.map(img => `
+                                <a href="${img}" target="_blank">
+                                    <img src="${img}" style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid rgba(255,255,255,0.08); transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" alt="Buyer uploaded image">
+                                </a>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML += `
+                    <div style="padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                            <strong style="color:var(--white); font-size:14px;">${f.buyer_name}</strong>
+                            <span style="color:var(--grey); font-size:11px;">${f.created_at}</span>
+                        </div>
+                        <div style="color:#f1c40f; margin:6px 0; font-size:15px;">${starsHtml}</div>
+                        ${f.comment ? `<div style="color:#ccc; font-size:13px; line-height:1.5; font-style:italic;">"${f.comment}"</div>` : ''}
+                        ${imagesHtml}
+                    </div>
+                `;
+            });
+        }
+        
+        overlay.style.display = 'flex';
+    }
+
+    function closeFeedbackModal() {
+        document.getElementById('feedbackOverlay').style.display = 'none';
+    }
+
+    document.getElementById('feedbackClose').addEventListener('click', closeFeedbackModal);
+    document.getElementById('feedbackOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeFeedbackModal();
+    });
+
+    window.openFeedbackModal = openFeedbackModal;
+
+    window.openQuickView=openQuickView;
+})();
+</script>

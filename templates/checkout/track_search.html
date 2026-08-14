@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order — Madina Mobile Shop</title>
+    <meta name="description" content="Track your Madina Mobile Shop order status using your Order Tracking ID.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --gold: #c0392b;
+            --gold-light: #e74c3c;
+            --black: #0A0A0A;
+            --dark-1: #111111;
+            --dark-2: #181818;
+            --dark-3: #222222;
+            --white: #FFFFFF;
+            --grey: #888888;
+            --green: #2ecc71;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* ===== HEADER ===== */
+        .header {
+            padding: 18px 40px;
+            background: var(--dark-1);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-logo img { height: 36px; width: auto; }
+        .brand-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+        .brand-logo-text .name { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 16px; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; }
+        .brand-logo-text .sub { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 8px; letter-spacing: 2px; color: #e74c3c; text-transform: uppercase; margin-top: 1px; }
+
+        .header-links { display: flex; align-items: center; gap: 20px; }
+        .header-link { color: var(--grey); text-decoration: none; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; transition: color 0.25s; display: flex; align-items: center; gap: 6px; }
+        .header-link:hover { color: var(--white); }
+        .header-link.active { color: var(--gold-light); }
+
+        /* ===== HERO AREA ===== */
+        .hero-section {
+            background: linear-gradient(135deg, #0a0a0a 0%, #111 50%, #150808 100%);
+            padding: 70px 20px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(192,57,43,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(192,57,43,0.12);
+            border: 1px solid rgba(192,57,43,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--gold-light);
+            margin: 0 auto 24px;
+            animation: pulseIcon 3s ease infinite;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.3); }
+            50% { box-shadow: 0 0 0 16px rgba(192,57,43,0); }
+        }
+
+        .hero-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            margin-bottom: 12px;
+        }
+
+        .hero-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(28px, 5vw, 46px);
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--white);
+            margin-bottom: 14px;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            color: var(--grey);
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ===== TRACK FORM CARD ===== */
+        .track-container {
+            max-width: 620px;
+            margin: -30px auto 60px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .track-card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 40px 36px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(192,57,43,0.08);
+        }
+
+        .track-card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .track-card-title i { color: var(--gold-light); font-size: 16px; }
+
+        .track-card-desc {
+            font-size: 13px;
+            color: var(--grey);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--grey);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .track-input {
+            width: 100%;
+            padding: 16px 16px 16px 46px;
+            background: var(--dark-3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--white);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            letter-spacing: 0.5px;
+        }
+
+        .track-input::placeholder { color: #444; font-weight: 400; }
+        .track-input:focus {
+            border-color: rgba(192,57,43,0.5);
+            box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+        }
+
+        .track-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .track-btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(192,57,43,0.35);
+        }
+
+        .track-btn:active { transform: translateY(0); }
+
+        /* Error message */
+        .error-box {
+            background: rgba(231,76,60,0.1);
+            border: 1px solid rgba(231,76,60,0.3);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #ff7675;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.5;
+        }
+        .error-box i { color: #e74c3c; flex-shrink: 0; margin-top: 1px; }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+        .divider-text { font-size: 11px; color: var(--grey); font-weight: 600; letter-spacing: 1px; }
+
+        /* Quick links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--grey);
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+        .quick-link:hover { border-color: rgba(192,57,43,0.3); background: rgba(192,57,43,0.05); color: var(--white); }
+        .quick-link i { color: var(--gold-light); font-size: 14px; width: 18px; text-align: center; }
+
+        /* ===== INFO CARDS ===== */
+        .info-section {
+            max-width: 620px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .info-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--grey);
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .info-card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .info-card-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(192,57,43,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--gold-light);
+            flex-shrink: 0;
+        }
+
+        .info-card-text h4 { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+        .info-card-text p { font-size: 11.5px; color: var(--grey); line-height: 1.5; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .header { padding: 14px 16px; }
+            .header-links { gap: 12px; }
+            .hero-section { padding: 50px 20px 50px; }
+            .track-card { padding: 28px 20px; }
+            .quick-links { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <a href="/" class="brand-logo">
+        <img src="/static/images/madina_mark.png" alt="Madina Mobile Shop">
+        <div class="brand-logo-text">
+            <span class="name">Madina</span>
+            <span class="sub">Mobile Shop</span>
+        </div>
+    </a>
+    <div class="header-links">
+        <a href="/" class="header-link"><i class="fas fa-store"></i> Store</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'my_orders' %}" class="header-link"><i class="fas fa-box"></i> My Orders</a>
+        {% endif %}
+        <a href="{% url 'track_order_search' %}" class="header-link active"><i class="fas fa-map-marker-alt"></i> Track Order</a>
+    </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<div class="hero-section">
+    <div class="hero-icon"><i class="fas fa-shipping-fast"></i></div>
+    <p class="hero-label">Real-Time Updates</p>
+    <h1 class="hero-title">Track Your Order</h1>
+    <p class="hero-subtitle">Enter your Order Tracking ID to instantly view your delivery status. No account needed — works for all orders including guest checkouts.</p>
+</div>
+
+<!-- ===== TRACK FORM ===== -->
+<div class="track-container">
+    <div class="track-card">
+        <div class="track-card-title"><i class="fas fa-barcode"></i> Enter Tracking ID</div>
+        <p class="track-card-desc">
+            Your Tracking ID is included in your order confirmation email. You can also find it on your confirmation page after checkout.
+        </p>
+
+        {% if error %}
+        <div class="error-box">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" id="trackForm">
+            {% csrf_token %}
+            <div class="input-group">
+                <i class="fas fa-search input-icon"></i>
+                <input
+                    type="text"
+                    name="tracking_token"
+                    id="trackingInput"
+                    class="track-input"
+                    placeholder="e.g. a1b2c3d4-e5f6-7890-abcd-ef1234567890 or Order #12"
+                    autocomplete="off"
+                    autofocus
+                    required
+                    value="{{ request.POST.tracking_token|default:'' }}"
+                >
+            </div>
+            <button type="submit" class="track-btn" id="trackBtn">
+                <i class="fas fa-search"></i> Track My Order
+            </button>
+        </form>
+
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-text">OR</div>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="quick-links">
+            <a href="{% url 'home' %}" class="quick-link">
+                <i class="fas fa-store"></i> Back to Store
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'my_orders' %}" class="quick-link">
+                <i class="fas fa-box-open"></i> My Orders
+            </a>
+            {% else %}
+            <a href="{% url 'customer_login' %}" class="quick-link">
+                <i class="fas fa-user"></i> Sign In
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ===== INFO SECTION ===== -->
+<div class="info-section">
+    <p class="info-title">How does tracking work?</p>
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-envelope"></i></div>
+            <div class="info-card-text">
+                <h4>Check Your Email</h4>
+                <p>After placing your order, you'll receive a confirmation email with your unique Tracking ID.</p>
+            </div>
+        </div>
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-paste"></i></div>
+            <div class="info-card-text">
+                <h4>Enter Your ID</h4>
+                <p>Paste or type your Tracking ID in the search box above and click "Track My Order".</p>
+            </div>
+        </div>
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-map-pin"></i></div>
+            <div class="info-card-text">
+                <h4>View Live Status</h4>
+                <p>See your order's current status — from Placed and Confirmed all the way to Delivered.</p>
+            </div>
+        </div>
+        <div class="info-card">
+            <div class="info-card-icon"><i class="fas fa-headset"></i></div>
+            <div class="info-card-text">
+                <h4>Need Help?</h4>
+                <p>Contact our support team if you can't find your Tracking ID or have questions about your order.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add loading spinner on submit
+    document.getElementById('trackForm').addEventListener('submit', function() {
+        const btn = document.getElementById('trackBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+        btn.disabled = true;
+    });
+</script>
+
+</body>
+</html>

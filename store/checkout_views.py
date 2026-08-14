@@ -345,5 +345,39 @@ def checkout_confirm(request, token):
 # ─── Guest Order Tracking ─────────────────────────────────────────────────────
 
 def track_order(request, token):
-    order = get_object_or_404(Order, tracking_token=token)
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items__product', 'items__feedback__images'),
+        tracking_token=token
+    )
     return render(request, 'checkout/track.html', {'order': order})
+
+
+# ─── Track Order Search (public form) ────────────────────────────────────────
+
+def track_order_search(request):
+    """Public page where anyone can enter a tracking token to see their order."""
+    error = None
+    if request.method == 'POST':
+        token_input = request.POST.get('tracking_token', '').strip()
+        if not token_input:
+            error = 'Please enter your Order Tracking ID.'
+        else:
+            try:
+                # Accept both the full UUID and the short order ID fallback
+                import uuid as _uuid
+                try:
+                    token_uuid = _uuid.UUID(str(token_input))
+                    order = Order.objects.filter(tracking_token=token_uuid).first()
+                except ValueError:
+                    # Maybe user typed numeric order ID
+                    order = Order.objects.filter(id=token_input).first()
+
+                if order:
+                    return redirect('track_order', token=str(order.tracking_token))
+                else:
+                    error = 'No order found with that Tracking ID. Please check and try again.'
+            except Exception:
+                error = 'Invalid Tracking ID format. Please check the ID from your order confirmation email.'
+
+    return render(request, 'checkout/track_search.html', {'error': error})
+

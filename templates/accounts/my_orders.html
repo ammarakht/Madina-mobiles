@@ -330,6 +330,17 @@
     <h1 class="page-title"><i class="fas fa-box-open" style="color:var(--gold);"></i> My Orders & Order History</h1>
     <p class="page-subtitle">Track current placed orders and view past purchases</p>
 
+    {% if messages %}
+        <div class="messages-container" style="margin-bottom: 20px;">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" style="padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; {% if message.tags == 'success' %}background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3);{% else %}background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3);{% endif %}">
+                    <span>{{ message.message }}</span>
+                    <button onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:0 5px;"><i class="fas fa-times"></i></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if is_guest %}
         <!-- Guest Lookup -->
         <div class="lookup-box">
@@ -356,13 +367,76 @@
                     </div>
                     <div class="order-items">
                         {% for item in order.items.all %}
-                        <div class="item-row">
+                        <div class="item-row" style="border-bottom: none; padding-bottom: 0;">
                             <img src="{{ item.product.image_url }}" class="item-img" alt="{{ item.product.name }}">
                             <div class="item-details">
                                 <div class="item-title">{{ item.product.name }}</div>
                                 <div class="item-price">Qty: {{ item.quantity }} × Rs. {{ item.price_at_purchase|floatformat:0 }}</div>
                             </div>
                             <div style="font-size:13.5px; font-weight:700;">Rs. {{ item.line_total|floatformat:0 }}</div>
+                        </div>
+                        <div class="item-feedback-section" style="padding-bottom: 12px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                            {% if item.feedback %}
+                                <div class="feedback-submitted-info" style="padding: 10px 14px; background: rgba(46,204,113,0.08); border-radius: 8px; border: 1px solid rgba(46,204,113,0.2); font-size: 13px; margin-top: 4px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="color:#2ecc71; font-weight:700;"><i class="fas fa-check-circle"></i> Reviewed</span>
+                                        <span style="color:var(--grey); font-size: 11px;">{{ item.feedback.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div style="margin: 4px 0 6px; color: #f1c40f; font-size: 14px;">
+                                        {% if item.feedback.rating == 5 %}⭐⭐⭐⭐⭐{% elif item.feedback.rating == 4 %}⭐⭐⭐⭐☆{% elif item.feedback.rating == 3 %}⭐⭐⭐☆☆{% elif item.feedback.rating == 2 %}⭐⭐☆☆☆{% else %}⭐☆☆☆☆{% endif %}
+                                    </div>
+                                    {% if item.feedback.comment %}
+                                        <div style="color:var(--white); font-style: italic;">"{{ item.feedback.comment }}"</div>
+                                    {% endif %}
+                                    {% if item.feedback.images.exists %}
+                                        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                                            {% for img in item.feedback.images.all %}
+                                                <a href="{{ img.image.url }}" target="_blank">
+                                                    <img src="{{ img.image.url }}" style="width:45px; height:45px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.1);" alt="Feedback image">
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <button class="btn-feedback-toggle" onclick="toggleFeedbackForm('fb-form-{{ item.id }}')" style="background: none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; transition: var(--transition);">
+                                    <i class="fas fa-star"></i> Leave Feedback
+                                </button>
+                                
+                                <div id="fb-form-{{ item.id }}" class="feedback-form-container" style="display:none; margin-top:8px; padding:14px; background:var(--dark-3); border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                                    <form action="{% url 'submit_feedback' %}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_item_id" value="{{ item.id }}">
+                                        
+                                        <div style="margin-bottom:10px;">
+                                            <label style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Rating</label>
+                                            <div class="star-rating-selector" data-item-id="{{ item.id }}" style="display:flex; gap:6px; font-size:20px; color:rgba(255,255,255,0.2); cursor:pointer;">
+                                                <i class="fas fa-star" data-value="1"></i>
+                                                <i class="fas fa-star" data-value="2"></i>
+                                                <i class="fas fa-star" data-value="3"></i>
+                                                <i class="fas fa-star" data-value="4"></i>
+                                                <i class="fas fa-star" data-value="5"></i>
+                                            </div>
+                                            <input type="hidden" id="rating-input-{{ item.id }}" name="rating" value="5">
+                                        </div>
+                                        
+                                        <div style="margin-bottom:10px;">
+                                            <label for="comment-{{ item.id }}" style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Comments</label>
+                                            <textarea id="comment-{{ item.id }}" name="comment" rows="2" placeholder="Write your review here..." style="width:100%; padding:8px; background:var(--black); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--white); font-family:inherit; font-size:13px; outline:none; resize:vertical;"></textarea>
+                                        </div>
+                                        
+                                        <div style="margin-bottom:12px;">
+                                            <label style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Add Pics</label>
+                                            <input type="file" name="pics" accept="image/*" multiple style="font-size:12px; color:var(--grey);">
+                                        </div>
+                                        
+                                        <div style="display:flex; gap:8px;">
+                                            <button type="submit" style="background:var(--gold); border:none; color:#fff; padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">Submit</button>
+                                            <button type="button" onclick="toggleFeedbackForm('fb-form-{{ item.id }}')" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--grey); padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase;">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>
@@ -422,13 +496,76 @@
 
                 <div class="order-items">
                     {% for item in order.items.all %}
-                    <div class="item-row">
+                    <div class="item-row" style="border-bottom: none; padding-bottom: 0;">
                         <img src="{{ item.product.image_url }}" class="item-img" alt="{{ item.product.name }}">
                         <div class="item-details">
                             <div class="item-title">{{ item.product.name }}</div>
                             <div class="item-price">Qty: {{ item.quantity }} × Rs. {{ item.price_at_purchase|floatformat:0 }}</div>
                         </div>
                         <div style="font-size:13.5px; font-weight:700;">Rs. {{ item.line_total|floatformat:0 }}</div>
+                    </div>
+                    <div class="item-feedback-section" style="padding-bottom: 12px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                        {% if item.feedback %}
+                            <div class="feedback-submitted-info" style="padding: 10px 14px; background: rgba(46,204,113,0.08); border-radius: 8px; border: 1px solid rgba(46,204,113,0.2); font-size: 13px; margin-top: 4px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="color:#2ecc71; font-weight:700;"><i class="fas fa-check-circle"></i> Reviewed</span>
+                                    <span style="color:var(--grey); font-size: 11px;">{{ item.feedback.created_at|date:"M d, Y" }}</span>
+                                </div>
+                                <div style="margin: 4px 0 6px; color: #f1c40f; font-size: 14px;">
+                                    {% if item.feedback.rating == 5 %}⭐⭐⭐⭐⭐{% elif item.feedback.rating == 4 %}⭐⭐⭐⭐☆{% elif item.feedback.rating == 3 %}⭐⭐⭐☆☆{% elif item.feedback.rating == 2 %}⭐⭐☆☆☆{% else %}⭐☆☆☆☆{% endif %}
+                                </div>
+                                {% if item.feedback.comment %}
+                                    <div style="color:var(--white); font-style: italic;">"{{ item.feedback.comment }}"</div>
+                                {% endif %}
+                                {% if item.feedback.images.exists %}
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                                        {% for img in item.feedback.images.all %}
+                                            <a href="{{ img.image.url }}" target="_blank">
+                                                <img src="{{ img.image.url }}" style="width:45px; height:45px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.1);" alt="Feedback image">
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <button class="btn-feedback-toggle" onclick="toggleFeedbackForm('fb-form-{{ item.id }}')" style="background: none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; transition: var(--transition);">
+                                <i class="fas fa-star"></i> Leave Feedback
+                            </button>
+                            
+                            <div id="fb-form-{{ item.id }}" class="feedback-form-container" style="display:none; margin-top:8px; padding:14px; background:var(--dark-3); border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                                <form action="{% url 'submit_feedback' %}" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="order_item_id" value="{{ item.id }}">
+                                    
+                                    <div style="margin-bottom:10px;">
+                                        <label style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Rating</label>
+                                        <div class="star-rating-selector" data-item-id="{{ item.id }}" style="display:flex; gap:6px; font-size:20px; color:rgba(255,255,255,0.2); cursor:pointer;">
+                                            <i class="fas fa-star" data-value="1"></i>
+                                            <i class="fas fa-star" data-value="2"></i>
+                                            <i class="fas fa-star" data-value="3"></i>
+                                            <i class="fas fa-star" data-value="4"></i>
+                                            <i class="fas fa-star" data-value="5"></i>
+                                        </div>
+                                        <input type="hidden" id="rating-input-{{ item.id }}" name="rating" value="5">
+                                    </div>
+                                    
+                                    <div style="margin-bottom:10px;">
+                                        <label for="comment-{{ item.id }}" style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Comments</label>
+                                        <textarea id="comment-{{ item.id }}" name="comment" rows="2" placeholder="Write your review here..." style="width:100%; padding:8px; background:var(--black); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--white); font-family:inherit; font-size:13px; outline:none; resize:vertical;"></textarea>
+                                    </div>
+                                    
+                                    <div style="margin-bottom:12px;">
+                                        <label style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Add Pics</label>
+                                        <input type="file" name="pics" accept="image/*" multiple style="font-size:12px; color:var(--grey);">
+                                    </div>
+                                    
+                                    <div style="display:flex; gap:8px;">
+                                        <button type="submit" style="background:var(--gold); border:none; color:#fff; padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">Submit</button>
+                                        <button type="button" onclick="toggleFeedbackForm('fb-form-{{ item.id }}')" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--grey); padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase;">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -457,13 +594,76 @@
                 </div>
                 <div class="order-items">
                     {% for item in order.items.all %}
-                    <div class="item-row">
+                    <div class="item-row" style="border-bottom: none; padding-bottom: 0;">
                         <img src="{{ item.product.image_url }}" class="item-img" alt="{{ item.product.name }}">
                         <div class="item-details">
                             <div class="item-title">{{ item.product.name }}</div>
                             <div class="item-price">Qty: {{ item.quantity }} × Rs. {{ item.price_at_purchase|floatformat:0 }}</div>
                         </div>
                         <div style="font-size:13.5px; font-weight:700;">Rs. {{ item.line_total|floatformat:0 }}</div>
+                    </div>
+                    <div class="item-feedback-section" style="padding-bottom: 12px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                        {% if item.feedback %}
+                            <div class="feedback-submitted-info" style="padding: 10px 14px; background: rgba(46,204,113,0.08); border-radius: 8px; border: 1px solid rgba(46,204,113,0.2); font-size: 13px; margin-top: 4px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="color:#2ecc71; font-weight:700;"><i class="fas fa-check-circle"></i> Reviewed</span>
+                                    <span style="color:var(--grey); font-size: 11px;">{{ item.feedback.created_at|date:"M d, Y" }}</span>
+                                </div>
+                                <div style="margin: 4px 0 6px; color: #f1c40f; font-size: 14px;">
+                                    {% if item.feedback.rating == 5 %}⭐⭐⭐⭐⭐{% elif item.feedback.rating == 4 %}⭐⭐⭐⭐☆{% elif item.feedback.rating == 3 %}⭐⭐⭐☆☆{% elif item.feedback.rating == 2 %}⭐⭐☆☆☆{% else %}⭐☆☆☆☆{% endif %}
+                                </div>
+                                {% if item.feedback.comment %}
+                                    <div style="color:var(--white); font-style: italic;">"{{ item.feedback.comment }}"</div>
+                                {% endif %}
+                                {% if item.feedback.images.exists %}
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                                        {% for img in item.feedback.images.all %}
+                                            <a href="{{ img.image.url }}" target="_blank">
+                                                <img src="{{ img.image.url }}" style="width:45px; height:45px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.1);" alt="Feedback image">
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <button class="btn-feedback-toggle" onclick="toggleFeedbackForm('fb-form-{{ item.id }}')" style="background: none; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; transition: var(--transition);">
+                                <i class="fas fa-star"></i> Leave Feedback
+                            </button>
+                            
+                            <div id="fb-form-{{ item.id }}" class="feedback-form-container" style="display:none; margin-top:8px; padding:14px; background:var(--dark-3); border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                                <form action="{% url 'submit_feedback' %}" method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="order_item_id" value="{{ item.id }}">
+                                    
+                                    <div style="margin-bottom:10px;">
+                                        <label style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Rating</label>
+                                        <div class="star-rating-selector" data-item-id="{{ item.id }}" style="display:flex; gap:6px; font-size:20px; color:rgba(255,255,255,0.2); cursor:pointer;">
+                                            <i class="fas fa-star" data-value="1"></i>
+                                            <i class="fas fa-star" data-value="2"></i>
+                                            <i class="fas fa-star" data-value="3"></i>
+                                            <i class="fas fa-star" data-value="4"></i>
+                                            <i class="fas fa-star" data-value="5"></i>
+                                        </div>
+                                        <input type="hidden" id="rating-input-{{ item.id }}" name="rating" value="5">
+                                    </div>
+                                    
+                                    <div style="margin-bottom:10px;">
+                                        <label for="comment-{{ item.id }}" style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Comments</label>
+                                        <textarea id="comment-{{ item.id }}" name="comment" rows="2" placeholder="Write your review here..." style="width:100%; padding:8px; background:var(--black); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:var(--white); font-family:inherit; font-size:13px; outline:none; resize:vertical;"></textarea>
+                                    </div>
+                                    
+                                    <div style="margin-bottom:12px;">
+                                        <label style="display:block; font-size:11px; font-weight:700; color:var(--grey); margin-bottom:4px; text-transform:uppercase;">Add Pics</label>
+                                        <input type="file" name="pics" accept="image/*" multiple style="font-size:12px; color:var(--grey);">
+                                    </div>
+                                    
+                                    <div style="display:flex; gap:8px;">
+                                        <button type="submit" style="background:var(--gold); border:none; color:#fff; padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px;">Submit</button>
+                                        <button type="button" onclick="toggleFeedbackForm('fb-form-{{ item.id }}')" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--grey); padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; text-transform:uppercase;">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -486,5 +686,58 @@
     {% endif %}
 </div>
 
+<script>
+function toggleFeedbackForm(formId) {
+    const el = document.getElementById(formId);
+    if (el) {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const selectors = document.querySelectorAll('.star-rating-selector');
+    selectors.forEach(sel => {
+        const itemId = sel.dataset.itemId;
+        const hiddenInput = document.getElementById('rating-input-' + itemId);
+        const stars = sel.querySelectorAll('i');
+        
+        function updateStars(val) {
+            stars.forEach(s => {
+                const starVal = parseInt(s.dataset.value);
+                if (starVal <= val) {
+                    s.style.color = '#f1c40f';
+                } else {
+                    s.style.color = 'rgba(255,255,255,0.2)';
+                }
+            });
+        }
+        
+        updateStars(5);
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const val = parseInt(this.dataset.value);
+                hiddenInput.value = val;
+                updateStars(val);
+            });
+            
+            star.addEventListener('mouseenter', function() {
+                const val = parseInt(this.dataset.value);
+                stars.forEach(s => {
+                    if (parseInt(s.dataset.value) <= val) {
+                        s.style.color = '#f1c40f';
+                    } else {
+                        s.style.color = 'rgba(255,255,255,0.2)';
+                    }
+                });
+            });
+        });
+        
+        sel.addEventListener('mouseleave', function() {
+            updateStars(parseInt(hiddenInput.value));
+        });
+    });
+});
+</script>
 </body>
 </html>

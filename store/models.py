@@ -137,3 +137,25 @@ class SiteSettings(models.Model):
         obj = cls.objects.first()
         return obj.flash_sale_end_time if obj else None
 
+
+class Feedback(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='feedbacks')
+    order_item = models.OneToOneField('accounts.OrderItem', on_delete=models.SET_NULL, null=True, blank=True, related_name='feedback')
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True)
+    buyer_name = models.CharField(max_length=200)
+    rating = models.PositiveIntegerField(default=5)
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.buyer_name} - {self.product.name} ({self.rating} stars)"
+
+
+class FeedbackImage(models.Model):
+    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='feedback_pics/')
+
+    def __str__(self):
+        return f"Image for Feedback #{self.feedback.id}"
+
+

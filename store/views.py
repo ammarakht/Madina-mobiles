@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import Product, Banner, Category, SearchLog, ProductView
+from .models import Product, Banner, Category, SearchLog, ProductView, Feedback, FeedbackImage
+from accounts.models import OrderItem
+from django.views.decorators.http import require_POST
+from django.contrib import messages
 from .recommendations import get_customer_recommendations
 
 
@@ -29,187 +32,58 @@ def search_products(request):
     return JsonResponse({'results': results})
 
 
-def seed_database():
-    """Seed the database with initial categories, products, and banners if empty"""
-    # 1. Banners
-    if Banner.objects.count() == 0:
-        Banner.objects.create(
-            title='Introducing',
-            subtitle='iPhone 15 Pro Max — Titanium Design — The Ultimate iPhone',
-            cta_text='Shop Now',
-            cta_link='#best-sellers',
-            image_url='https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=1400&h=700&fit=crop&q=80',
-            order=0,
-            is_active=True
-        )
-        Banner.objects.create(
-            title='Special Offer',
-            subtitle='Premium Accessories — Protect & Power Your Devices',
-            cta_text='Explore Now',
-            cta_link='#flash-sale',
-            image_url='https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=1400&h=700&fit=crop&q=80',
-            order=1,
-            is_active=True
-        )
-        Banner.objects.create(
-            title='Latest Smart Watches',
-            subtitle='Stay Connected On The Go',
-            cta_text='View Collection',
-            cta_link='#smart-watches',
-            image_url='https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=1400&h=700&fit=crop&q=80',
-            order=2,
-            is_active=True
-        )
+def product_detail_api(request, product_id):
+    """Returns full product details as JSON for the quick-view popup modal."""
+    try:
+        p = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
 
-    # 2. Categories
-    if Category.objects.count() == 0:
-        categories_data = [
-            {'name': 'Smartphones', 'slug': 'smartphones', 'icon': '📱', 'image': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop'},
-            {'name': 'Accessories', 'slug': 'accessories', 'icon': '🔌', 'image': 'https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=200&h=200&fit=crop'},
-            {'name': 'Smart Watches', 'slug': 'smart-watches', 'icon': '⌚', 'image': 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=200&h=200&fit=crop'},
-            {'name': 'Audio & Gadgets', 'slug': 'audio-gadgets', 'icon': '🎧', 'image': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop'},
-        ]
-        for i, cat in enumerate(categories_data):
-            Category.objects.create(
-                name=cat['name'],
-                slug=cat['slug'],
-                icon=cat['icon'],
-                order=i
-            )
+    # Build image gallery — include all non-empty image fields
+    images = []
+    if p.image_url:
+        images.append(p.image_url)
+    if p.image2_url:
+        images.append(p.image2_url)
 
-    # 3. Products
-    if Product.objects.count() == 0:
-        product_images = {
-            'men': [
-                'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1565849906660-4469a5815570?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400&h=400&fit=crop',
-            ],
-            'women': [
-                'https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1622445262465-2481c8573126?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1609592424085-f50a80757a3e?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1618220179428-22790b461013?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=400&h=400&fit=crop',
-            ],
-            'couples': [
-                'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&h=400&fit=crop',
-            ],
-            'smart': [
-                'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=400&fit=crop',
-                'https://images.unsplash.com/photo-1517502884422-41eaaced0168?w=400&h=400&fit=crop',
-            ],
-        }
+    # Log the product view for recommendations
+    user = request.user if request.user.is_authenticated else None
+    ProductView.objects.create(user=user, product=p)
 
-        # Smartphones (category: 'men')
-        for i in range(8):
-            names = [
-                'iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra', 'Xiaomi 14 Ultra', 'OnePlus 12',
-                'Google Pixel 8 Pro', 'Infinix GT 20 Pro', 'Tecno Camon 30 Premier', 'Realme GT 6'
-            ]
-            original_prices = [450000, 390000, 310000, 270000, 290000, 95000, 85000, 160000]
-            sale_prices = [419999, 364999, 289999, 249999, 269999, 89999, 79999, 149999]
-            Product.objects.create(
-                name=names[i],
-                sku=f"MP-SP-{1000+i}",
-                category='smartphones',
-                original_price=original_prices[i],
-                sale_price=sale_prices[i],
-                rating=4.5 + (i % 6) * 0.1,
-                review_count=30 + i * 25,
-                in_stock=True,
-                is_flash_sale=(i == 0 or i == 1),
-                is_featured=(i == 2),
-                image_url=product_images['men'][i],
-                image2_url=product_images['men'][(i+1)%8]
-            )
+    category_labels = dict(Product.CATEGORY_CHOICES)
 
-        # Accessories (category: 'women')
-        for i in range(8):
-            names = [
-                'MagSafe Silicone Case', '25W USB-C Fast Charger', '9H Tempered Glass', '20,000mAh Power Bank',
-                'Magnetic Ring Stand', '15W Fast Wireless Pad', 'OTG USB-C Adapter', 'Heavy Duty Armor Case'
-            ]
-            original_prices = [4500, 5500, 1500, 8500, 2500, 6500, 2000, 3500]
-            sale_prices = [2999, 3999, 899, 5999, 1499, 4499, 999, 1999]
-            Product.objects.create(
-                name=names[i],
-                sku=f"MP-AC-{2000+i}",
-                category='accessories',
-                original_price=original_prices[i],
-                sale_price=sale_prices[i],
-                rating=4.5 + (i % 6) * 0.1,
-                review_count=40 + i * 30,
-                in_stock=True,
-                is_flash_sale=(i == 2),
-                is_featured=(i == 0),
-                image_url=product_images['women'][i],
-                image2_url=product_images['women'][(i+1)%8]
-            )
+    feedbacks_data = []
+    feedbacks = p.feedbacks.all().order_by('-created_at')
+    for f in feedbacks:
+        feedbacks_data.append({
+            'buyer_name': f.buyer_name,
+            'rating': f.rating,
+            'comment': f.comment,
+            'created_at': f.created_at.strftime('%B %d, %Y'),
+            'images': [img.image.url for img in f.images.all()]
+        })
 
-        # Audio & Gadgets (category: 'couples')
-        for i in range(4):
-            names = [
-                'AirPods Pro Gen 2 Clone', 'Galaxy Buds 2 Pro',
-                'Anker Soundcore Motion', 'Mi Smart Bluetooth Hub'
-            ]
-            original_prices = [18000, 24000, 15000, 6000]
-            sale_prices = [11999, 17999, 10999, 3999]
-            Product.objects.create(
-                name=names[i],
-                sku=f"MP-GD-{3000+i}",
-                category='audio-gadgets',
-                original_price=original_prices[i],
-                sale_price=sale_prices[i],
-                rating=4.7 + (i % 3) * 0.1,
-                review_count=20 + i * 15,
-                in_stock=True,
-                is_flash_sale=(i == 3),
-                is_featured=(i == 1),
-                image_url=product_images['couples'][i],
-                image2_url=product_images['couples'][(i+1)%4]
-            )
+    return JsonResponse({
+        'id': p.id,
+        'name': p.name,
+        'sku': p.sku or f'SKU-{p.id:04d}',
+        'category': category_labels.get(p.category, p.category),
+        'category_slug': p.category,
+        'original_price': float(p.original_price),
+        'sale_price': float(p.sale_price),
+        'discount_percent': p.discount_percent,
+        'rating': float(p.rating),
+        'review_count': p.review_count,
+        'in_stock': p.in_stock,
+        'is_flash_sale': p.is_flash_sale,
+        'is_featured': p.is_featured,
+        'images': images,
+        'feedbacks': feedbacks_data,
+    })
 
-        # Smart Watches (category: 'smart')
-        for i in range(4):
-            names = [
-                'Apple Watch Series 9 GPS', 'Galaxy Watch 6 Classic LTE',
-                'Xiaomi Watch S3', 'Haylou Solar Lite'
-            ]
-            original_prices = [220000, 95000, 45000, 12000]
-            sale_prices = [189999, 79999, 34999, 7999]
-            Product.objects.create(
-                name=names[i],
-                sku=f"MP-SW-{4000+i}",
-                category='smart-watches',
-                original_price=original_prices[i],
-                sale_price=sale_prices[i],
-                rating=4.6 + (i % 3) * 0.1,
-                review_count=15 + i * 20,
-                in_stock=True,
-                is_flash_sale=(i == 1),
-                is_featured=(i == 0),
-                image_url=product_images['smart'][i],
-                image2_url=product_images['smart'][(i+1)%4]
-            )
 
 
 def home(request):
-    # Ensure database is seeded with beautiful initial records
-    seed_database()
 
     # Load active banners from database
     db_banners = Banner.objects.filter(is_active=True).order_by('order')
@@ -416,4 +290,72 @@ def category_products(request, category_slug='all'):
         'q': q,
     }
     return render(request, 'store/category.html', context)
+
+
+@require_POST
+def submit_feedback(request):
+    """
+    Submits user or guest feedback for a specific product inside an order.
+    Accepts: order_item_id, rating, comment, and optional image files.
+    """
+    order_item_id = request.POST.get('order_item_id')
+    rating = request.POST.get('rating')
+    comment = request.POST.get('comment', '').strip()
+    
+    if not order_item_id or not rating:
+        messages.error(request, "Invalid feedback submission: missing item or rating.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+    try:
+        rating = int(rating)
+        if not (1 <= rating <= 5):
+            raise ValueError()
+    except ValueError:
+        messages.error(request, "Invalid rating value.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+    order_item = get_object_or_404(OrderItem, id=order_item_id)
+    
+    # Check if feedback already exists for this order item
+    if hasattr(order_item, 'feedback'):
+        messages.error(request, "You have already submitted feedback for this item.")
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+    # Get buyer name
+    buyer_name = "Guest Buyer"
+    if order_item.order.user:
+        buyer_name = order_item.order.user.get_full_name() or order_item.order.user.username
+    elif order_item.order.guest_name:
+        buyer_name = order_item.order.guest_name
+        
+    user = request.user if request.user.is_authenticated else None
+    
+    # Create feedback
+    feedback = Feedback.objects.create(
+        product=order_item.product,
+        order_item=order_item,
+        user=user,
+        buyer_name=buyer_name,
+        rating=rating,
+        comment=comment
+    )
+    
+    # Save uploaded images (pics)
+    images = request.FILES.getlist('pics')
+    for img in images:
+        FeedbackImage.objects.create(feedback=feedback, image=img)
+        
+    # Recalculate product average rating and review count
+    product = order_item.product
+    feedbacks = Feedback.objects.filter(product=product)
+    count = feedbacks.count()
+    if count > 0:
+        avg_rating = sum(f.rating for f in feedbacks) / count
+        product.rating = round(avg_rating, 1)
+        product.review_count = count
+        product.save()
+        
+    messages.success(request, f"Feedback submitted successfully for {product.name}!")
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
 
