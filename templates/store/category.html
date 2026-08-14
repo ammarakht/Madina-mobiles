@@ -627,9 +627,15 @@
             backdrop-filter: blur(4px);
             z-index: 1200;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .mobile-sidebar-overlay.open { opacity: 1; }
+        .mobile-sidebar-overlay.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
         .mobile-sidebar {
             position: fixed;
             top: 0;
