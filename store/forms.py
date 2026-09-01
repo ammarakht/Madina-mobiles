@@ -36,13 +36,21 @@ class ProductForm(forms.ModelForm):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name', 'slug', 'icon', 'order']
+        fields = ['name', 'slug', 'icon', 'image_url', 'subtitle', 'order']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Smartphones'}),
             'slug': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. smartphones'}),
             'icon': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. 📱 or fa-mobile'}),
+            'image_url': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'https:// or uploaded image URL', 'id': 'id_category_image_url'}),
+            'subtitle': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. NEW COLLECTION (optional)'}),
             'order': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '0'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image_url'].required = False
+        self.fields['subtitle'].required = False
+        self.fields['icon'].required = False
 
 
 class BannerForm(forms.ModelForm):

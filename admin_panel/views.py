@@ -1,3 +1,8 @@
+import os
+import uuid
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
@@ -6,6 +11,16 @@ from django.contrib import messages
 from django.db.models import Q
 from store.models import Product, Category, Banner
 from store.forms import ProductForm, CategoryForm, BannerForm
+
+
+def save_uploaded_image(uploaded_file, folder='products'):
+    """Saves an uploaded image file into media/folder/ and returns its public URL path."""
+    ext = os.path.splitext(uploaded_file.name)[1]
+    filename = f"{uuid.uuid4().hex}{ext}"
+    relative_path = os.path.join(folder, filename).replace('\\', '/')
+    saved_path = default_storage.save(relative_path, ContentFile(uploaded_file.read()))
+    return f"{settings.MEDIA_URL}{saved_path}"
+
 
 
 # ─── AUTH ────────────────────────────────────────────────────────────────────
@@ -175,9 +190,12 @@ def category_list(request):
 @login_required(login_url='admin_login')
 def category_add(request):
     if request.method == 'POST':
-        form = CategoryForm(request.POST)
+        form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            category = form.save(commit=False)
+            if request.FILES.get('image_file'):
+                category.image_url = save_uploaded_image(request.FILES['image_file'], 'categories')
+            category.save()
             messages.success(request, '✅ Category added!')
             return redirect('admin_category_list')
     else:
@@ -189,9 +207,12 @@ def category_add(request):
 def category_edit(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
+        form = CategoryForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
-            form.save()
+            cat_obj = form.save(commit=False)
+            if request.FILES.get('image_file'):
+                cat_obj.image_url = save_uploaded_image(request.FILES['image_file'], 'categories')
+            cat_obj.save()
             messages.success(request, '✅ Category updated!')
             return redirect('admin_category_list')
     else:

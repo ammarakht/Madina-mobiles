@@ -35,7 +35,22 @@ SECRET_KEY = 'django-insecure-4^ogf=(6@j^vb$h9qww1qafyr3uce!%2^pfmm=%!gffcc8m*mo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '.onrender.com']
+ALLOWED_HOSTS = [
+    '*',
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',
+    'madinamobiles.xyz',
+    'www.madinamobiles.xyz',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://madinamobiles.xyz',
+    'https://www.madinamobiles.xyz',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
 
 # Application definition

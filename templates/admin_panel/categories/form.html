@@ -16,7 +16,7 @@
             <span class="card-title"><i class="fas fa-tags" style="color:var(--gold); margin-right:8px;"></i> Category Details</span>
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div style="display:flex; flex-direction:column; gap:18px;">
                     <div class="form-group">
@@ -28,8 +28,24 @@
                     <div class="form-group">
                         <label class="form-label">Slug (URL Key)</label>
                         {{ form.slug }}
-                        <span class="form-hint">Used in web addresses — only lowercase letters, numbers, hyphens (e.g. men-formal)</span>
+                        <span class="form-hint">Used in web addresses — only lowercase letters, numbers, hyphens (e.g. smartphones)</span>
                         {% if form.slug.errors %}<div style="color:var(--red);font-size:11px;margin-top:4px;">{{ form.slug.errors|join:", " }}</div>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category Image (Upload or Paste URL)</label>
+                        <input type="file" name="image_file" accept="image/*" class="form-input" style="padding:8px; margin-bottom:8px;">
+                        {{ form.image_url }}
+                        <span class="form-hint">Upload an image file or paste an image URL to display in the circular category menu.</span>
+                        {% if category.image_url %}
+                        <div style="margin-top:8px;">
+                            <img src="{{ category.image_url }}" alt="Category image" style="width:60px; height:60px; object-fit:cover; border-radius:50%; border:1px solid rgba(255,255,255,0.2);">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Badge Subtitle (Optional)</label>
+                        {{ form.subtitle }}
+                        <span class="form-hint">e.g. "NEW COLLECTION". Leave blank to show "NEW COLLECTION" for 30 days after creation, then automatically disappear.</span>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Icon / Emoji</label>

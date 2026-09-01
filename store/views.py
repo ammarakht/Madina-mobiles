@@ -124,21 +124,35 @@ def home(request):
 
     # Load categories from DB
     db_categories = Category.objects.all().order_by('order')
-    # Since categories map to circular navigation on top, let's map them
     categories_images = {
-        'Smartphones': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop',
-        'Accessories': 'https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=200&h=200&fit=crop',
-        'Smart Watches': 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=200&h=200&fit=crop',
-        'Audio & Gadgets': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop',
+        'smartphones': 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop',
+        'accessories': 'https://images.unsplash.com/photo-1608156639585-b3a032ef9689?w=200&h=200&fit=crop',
+        'smart-watches': 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=200&h=200&fit=crop',
+        'audio-gadgets': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop',
     }
     categories = []
     for cat in db_categories:
+        # Category Image: custom uploaded URL or fallback to stock preset
+        img = cat.image_url.strip() if cat.image_url else ''
+        if not img:
+            img = categories_images.get(cat.slug, 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop')
+
+        # Subtitle logic:
+        # 1. Custom subtitle if set in Admin (cat.subtitle)
+        # 2. Otherwise, if category was created within the last 30 days (cat.is_new), show "NEW COLLECTION"
+        # 3. If older than 30 days, DO NOT show "NEW COLLECTION"!
+        sub_text = ''
+        if cat.subtitle:
+            sub_text = cat.subtitle
+        elif cat.is_new:
+            sub_text = 'NEW COLLECTION'
+
         categories.append({
             'name': cat.name,
             'slug': cat.slug,
-            'sub': 'NEW COLLECTION' if 'Smart' in cat.name else '',
+            'sub': sub_text,
             'icon': cat.icon,
-            'image': categories_images.get(cat.name, 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop'),
+            'image': img,
         })
 
     # Fallback categories if empty
@@ -156,7 +170,31 @@ def home(request):
     couples_products = Product.objects.filter(category='audio-gadgets', in_stock=True)[:4]
     smart_products = Product.objects.filter(category='smart-watches', in_stock=True)[:4]
 
-    # Recommendations: Only computed if logged in (user explicitly requested to hide until login)
+    # Dynamically build sections for EVERY category in the database
+    category_sections = []
+    for cat in db_categories:
+        prods = Product.objects.filter(
+            Q(category__iexact=cat.slug) | Q(category__iexact=cat.name)
+        )[:4]
+        sub_label = 'Top Collection'
+        cat_lower = cat.name.lower()
+        if 'phone' in cat_lower or 'mobile' in cat_lower:
+            sub_label = 'Top Sellers'
+        elif 'access' in cat_lower:
+            sub_label = 'Must-Have Gear'
+        elif 'audio' in cat_lower or 'gadget' in cat_lower or 'head' in cat_lower:
+            sub_label = 'Wireless Audio'
+        elif 'watch' in cat_lower:
+            sub_label = 'On The Wrist'
+
+        category_sections.append({
+            'name': cat.name,
+            'slug': cat.slug,
+            'sub_label': sub_label,
+            'products': prods,
+        })
+
+    # Recommendations: Only computed if logged in
     recommended_products = []
     if request.user.is_authenticated and not request.user.is_staff:
         recommended_products = get_customer_recommendations(request.user, limit=4)
@@ -164,6 +202,7 @@ def home(request):
     context = {
         'hero_slides': hero_slides,
         'categories': categories,
+        'category_sections': category_sections,
         'flash_sale_products': flash_sale_products,
         'men_products': men_products,
         'women_products': women_products,

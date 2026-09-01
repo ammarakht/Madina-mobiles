@@ -2468,10 +2468,10 @@
             position: absolute;
             top: 14px;
             right: 14px;
-            width: 34px;
-            height: 34px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
+            width: 38px;
+            height: 38px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 50%;
             color: #fff;
             font-size: 16px;
@@ -2481,6 +2481,8 @@
             cursor: pointer;
             z-index: 10;
             transition: all 0.25s ease;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .qv-close:hover { background: #c0392b; border-color: #c0392b; }
 
@@ -2624,6 +2626,8 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .qv-btn-cart:hover { background: #e74c3c; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(192,57,43,0.4); }
         .qv-btn-cart:active { transform: translateY(0); }
@@ -2647,6 +2651,8 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .qv-btn-checkout:hover { border-color: rgba(255,255,255,0.4); color: #fff; background: rgba(255,255,255,0.04); }
 
@@ -2664,12 +2670,17 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 680px) {
-            .qv-modal { grid-template-columns: 1fr; max-height: 95vh; }
-            .qv-gallery { border-radius: 16px 16px 0 0; min-height: 280px; }
-            .qv-gallery-main { min-height: 280px; }
-            .qv-info { padding: 22px 18px; }
+            .qv-modal { grid-template-columns: 1fr; max-height: 90vh; }
+            .qv-gallery { border-radius: 16px 16px 0 0; min-height: 260px; }
+            .qv-gallery-main { min-height: 260px; }
+            .qv-info { padding: 20px 16px; }
             .qv-name { font-size: 18px; }
-            .qv-price-sale { font-size: 24px; }
+            .qv-price-sale { font-size: 22px; }
+            .qv-btn-cart, .qv-btn-checkout, .qv-btn-feedback {
+                padding: 14px;
+                font-size: 11px;
+                min-height: 46px;
+            }
         }
 
         /* Light mode */
@@ -2700,6 +2711,8 @@
             justify-content: center;
             gap: 8px;
             margin-top: 5px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .qv-btn-feedback:hover:not(:disabled) {
             background: #c0392b;
@@ -3043,20 +3056,24 @@
     </div>
 </div>
 
-<!-- ========== BEST SELLERS: MEN ========== -->
-<div id="best-sellers">
+<!-- ========== DYNAMIC CATEGORY SHOWCASE SECTIONS ========== -->
+{% for section in category_sections %}
+<div id="{{ section.slug }}">
     <div class="bestseller-section reveal-up">
         <div class="section-header">
-            <p class="section-label">Top Sellers</p>
-            <h2 class="section-title">Best Selling Smartphones</h2>
+            <p class="section-label">{{ section.sub_label }}</p>
+            <h2 class="section-title">{{ section.name }}</h2>
             <div class="section-divider"></div>
         </div>
+        {% if section.products %}
         <div class="product-grid">
-            {% for product in men_products %}
+            {% for product in section.products %}
             <div class="product-card" data-product-id="{{ product.id }}">
                 <div class="product-image-wrap">
                     <img class="product-img" src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                    {% if product.discount_percent > 0 %}
                     <span class="discount-badge">{{ product.discount_percent }}% OFF</span>
+                    {% endif %}
                     <div class="product-actions">
                         <button class="product-action-btn" title="Wishlist"><i class="far fa-heart"></i></button>
                         <button class="product-action-btn" title="Quick View"><i class="fas fa-eye"></i></button>
@@ -3070,7 +3087,9 @@
                     </div>
                     <div class="product-price">
                         <span class="price-sale">Rs. {{ product.sale_price|floatformat:0 }}</span>
+                        {% if product.original_price > product.sale_price %}
                         <span class="price-original">Rs. {{ product.original_price|floatformat:0 }}</span>
+                        {% endif %}
                     </div>
                     <div class="stock-status"><span class="stock-dot"></span> In Stock</div>
                     <button class="add-to-cart-btn">Add to Cart</button>
@@ -3079,138 +3098,22 @@
             {% endfor %}
         </div>
         <div class="view-all-wrap">
-            <a href="{% url 'category_products' 'smartphones' %}" class="btn-view-all">View All Smartphones <i class="fas fa-arrow-right"></i></a>
+            <a href="{% url 'category_products' section.slug %}" class="btn-view-all">View All {{ section.name }} <i class="fas fa-arrow-right"></i></a>
         </div>
+        {% else %}
+        <div class="empty-category-notice" style="text-align:center; padding:45px 20px; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:16px;">
+            <p style="font-size:15px; font-weight:700; color:var(--white); margin-bottom:6px;">New Products Coming Soon</p>
+            <p style="font-size:13px; color:var(--grey); margin-bottom:18px;">We are stocking new items for {{ section.name }}. Check back soon!</p>
+            <a href="{% url 'category_products' section.slug %}" class="btn-outline" style="padding:10px 24px; font-size:11px;">Explore {{ section.name }} <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% endif %}
     </div>
 </div>
 
+{% if not forloop.last %}
 <hr class="full-divider">
-
-<!-- ========== BEST SELLERS: WOMEN ========== -->
-<div>
-    <div class="bestseller-section reveal-up">
-        <div class="section-header">
-            <p class="section-label">Must-Have Gear</p>
-            <h2 class="section-title">Premium Mobile Accessories</h2>
-            <div class="section-divider"></div>
-        </div>
-        <div class="product-grid">
-            {% for product in women_products %}
-            <div class="product-card" data-product-id="{{ product.id }}">
-                <div class="product-image-wrap">
-                    <img class="product-img" src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
-                    <span class="discount-badge">{{ product.discount_percent }}% OFF</span>
-                    <div class="product-actions">
-                        <button class="product-action-btn" title="Wishlist"><i class="far fa-heart"></i></button>
-                        <button class="product-action-btn" title="Quick View"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">{{ product.rating }} ({{ product.review_count }})</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="price-sale">Rs. {{ product.sale_price|floatformat:0 }}</span>
-                        <span class="price-original">Rs. {{ product.original_price|floatformat:0 }}</span>
-                    </div>
-                    <div class="stock-status"><span class="stock-dot"></span> In Stock</div>
-                    <button class="add-to-cart-btn">Add to Cart</button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="view-all-wrap">
-            <a href="{% url 'category_products' 'accessories' %}" class="btn-view-all">View All Accessories <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </div>
-</div>
-
-<hr class="full-divider">
-
-<div id="gadgets">
-    <div class="bestseller-section reveal-up">
-        <div class="section-header">
-            <p class="section-label">Wireless Audio</p>
-            <h2 class="section-title">Audio &amp; Smart Gadgets</h2>
-            <div class="section-divider"></div>
-        </div>
-        <div class="product-grid">
-            {% for product in couples_products %}
-            <div class="product-card" data-product-id="{{ product.id }}">
-                <div class="product-image-wrap">
-                    <img class="product-img" src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
-                    <span class="discount-badge">{{ product.discount_percent }}% OFF</span>
-                    <div class="product-actions">
-                        <button class="product-action-btn" title="Wishlist"><i class="far fa-heart"></i></button>
-                        <button class="product-action-btn" title="Quick View"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">{{ product.rating }} ({{ product.review_count }})</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="price-sale">Rs. {{ product.sale_price|floatformat:0 }}</span>
-                        <span class="price-original">Rs. {{ product.original_price|floatformat:0 }}</span>
-                    </div>
-                    <div class="stock-status"><span class="stock-dot"></span> In Stock</div>
-                    <button class="add-to-cart-btn">Add to Cart</button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="view-all-wrap">
-            <a href="{% url 'category_products' 'audio-gadgets' %}" class="btn-view-all">View All Gadgets <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </div>
-</div>
-
-<hr class="full-divider">
-
-<!-- ========== BEST SELLERS: SMART WATCHES ========== -->
-<div id="smart-watches">
-    <div class="bestseller-section reveal-up">
-        <div class="section-header">
-            <p class="section-label">On The Wrist</p>
-            <h2 class="section-title">Best Selling Smart Watches</h2>
-            <div class="section-divider"></div>
-        </div>
-        <div class="product-grid">
-            {% for product in smart_products %}
-            <div class="product-card" data-product-id="{{ product.id }}">
-                <div class="product-image-wrap">
-                    <img class="product-img" src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
-                    <span class="discount-badge">{{ product.discount_percent }}% OFF</span>
-                    <div class="product-actions">
-                        <button class="product-action-btn" title="Wishlist"><i class="far fa-heart"></i></button>
-                        <button class="product-action-btn" title="Quick View"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">{{ product.rating }} ({{ product.review_count }})</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="price-sale">Rs. {{ product.sale_price|floatformat:0 }}</span>
-                        <span class="price-original">Rs. {{ product.original_price|floatformat:0 }}</span>
-                    </div>
-                    <div class="stock-status"><span class="stock-dot"></span> In Stock</div>
-                    <button class="add-to-cart-btn">Add to Cart</button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="view-all-wrap">
-            <a href="{% url 'category_products' 'smart-watches' %}" class="btn-view-all">View All Smart Watches <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </div>
-</div>
+{% endif %}
+{% endfor %}
 
 <!-- ========== FEATURES / WHY MADINA MOBILE ========== -->
 <div class="features-section reveal-up">
@@ -3780,26 +3683,34 @@
         });
     });
 
-    function addToCartDirect(name, img, price) {
-        const existingItem = cart.find(item => item.name === name);
+    function addToCart(id, name, price, image) {
+        const existingItem = cart.find(item => (id && item.id === id) || item.name === name);
         if (existingItem) {
             existingItem.qty++;
         } else {
-            cart.push({ name, img, price, qty: 1 });
+            cart.push({ id: id, name: name, img: image, price: price, qty: 1 });
         }
         saveCart();
         openCart();
     }
+    window.addToCart = addToCart;
 
-    // Checkout button logic: posts cart JSON to /checkout/start/
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    checkoutBtn.addEventListener('click', function() {
+    function addToCartDirect(name, img, price) {
+        addToCart(null, name, price, img);
+    }
+
+    function buyNowProduct(id, name, price, image) {
+        addToCart(id, name, price, image);
+        submitCartCheckout();
+    }
+    window.buyNowProduct = buyNowProduct;
+
+    function submitCartCheckout() {
         if (cart.length === 0) {
             alert('Your cart is empty!');
             return;
         }
         
-        // Create hidden form and submit cart data
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/checkout/start/';
@@ -3818,7 +3729,13 @@
 
         document.body.appendChild(form);
         form.submit();
-    });
+    }
+    window.submitCartCheckout = submitCartCheckout;
+
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', submitCartCheckout);
+    }
 
     // Initialize UI on load
     updateCartUI();
@@ -4177,11 +4094,11 @@
                 <span style="color: ${p.in_stock ? '#2ecc71' : '#e74c3c'}">${p.in_stock ? 'In Stock — Ready to Ship' : 'Out of Stock'}</span>
             </div>
             <div class="qv-actions">
-                <button class="qv-btn-cart" onclick="addToCart(${p.id}, '${escStr(p.name)}', ${p.sale_price}, '${escStr(images[0])}'); document.getElementById('qvClose').click();">
-                    <i class="fas fa-shopping-bag"></i> Add to Cart
+                <button class="qv-btn-cart" ${!p.in_stock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="${p.in_stock ? `addToCart(${p.id}, '${escStr(p.name)}', ${p.sale_price}, '${escStr(images[0])}'); document.getElementById('qvClose').click();` : ''}">
+                    <i class="fas fa-shopping-bag"></i> ${p.in_stock ? 'Add to Cart' : 'Out of Stock'}
                 </button>
-                <button class="qv-btn-checkout" onclick="addToCart(${p.id}, '${escStr(p.name)}', ${p.sale_price}, '${escStr(images[0])}'); window.location.href='/checkout/start/';">
-                    <i class="fas fa-bolt"></i> Buy Now — Rs. ${formatNum(p.sale_price)}
+                <button class="qv-btn-checkout" ${!p.in_stock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="${p.in_stock ? `buyNowProduct(${p.id}, '${escStr(p.name)}', ${p.sale_price}, '${escStr(images[0])}')` : ''}">
+                    <i class="fas fa-bolt"></i> ${p.in_stock ? `Buy Now — Rs. ${formatNum(p.sale_price)}` : 'Out of Stock'}
                 </button>
                 <button class="qv-btn-feedback" id="qvBtnFeedback" ${!p.feedbacks || p.feedbacks.length === 0 ? 'disabled' : ''} onclick="openFeedbackModal()">
                     <i class="fas fa-star"></i> ${!p.feedbacks || p.feedbacks.length === 0 ? 'No Feedback' : `Feedback (${p.feedbacks.length})`}

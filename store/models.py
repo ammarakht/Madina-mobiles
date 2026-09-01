@@ -1,15 +1,26 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     icon = models.CharField(max_length=100, blank=True)  # emoji or icon class
+    image_url = models.CharField(max_length=500, blank=True)
+    subtitle = models.CharField(max_length=100, blank=True)  # e.g. "NEW COLLECTION"
     order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ['order']
         verbose_name_plural = 'Categories'
+
+    @property
+    def is_new(self):
+        """Returns True if category was created within the last 30 days (1 month)."""
+        if self.created_at:
+            return (timezone.now() - self.created_at).days <= 30
+        return False
 
     def __str__(self):
         return self.name

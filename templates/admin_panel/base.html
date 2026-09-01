@@ -471,10 +471,126 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* ── MOBILE RESPONSIVE & TOUCH ── */
+        .admin-mobile-toggle {
+            display: none;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            margin-right: 12px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .admin-sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            z-index: 95;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .admin-sidebar-overlay.open { display: block; }
+
+        button, input, select, a {
+            touch-action: manipulation;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                z-index: 100;
+                box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .admin-mobile-toggle {
+                display: inline-flex;
+            }
+            .main-wrap {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+            .topbar {
+                padding: 0 16px;
+            }
+            .content {
+                padding: 18px 16px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .stat-card {
+                padding: 16px;
+            }
+            .stat-value {
+                font-size: 22px;
+            }
+            .topbar-right {
+                gap: 8px;
+            }
+            .topbar-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+            .table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                min-width: 600px;
+            }
+            .btn-actions {
+                display: flex;
+                gap: 6px;
+                flex-wrap: nowrap;
+            }
+            .btn-sm {
+                padding: 8px 12px;
+                font-size: 12px;
+                min-height: 36px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .card-header {
+                padding: 14px 16px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .card-body {
+                padding: 16px;
+            }
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-input-wrap {
+                width: 100%;
+            }
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+
+<div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
 
 <!-- ── SIDEBAR ── -->
 <aside class="sidebar">
@@ -552,9 +668,14 @@
 <!-- ── MAIN CONTENT ── -->
 <div class="main-wrap">
     <div class="topbar">
-        <div class="topbar-left">
-            <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
-            <div class="page-breadcrumb">{% block page_breadcrumb %}Home{% endblock %}</div>
+        <div class="topbar-left" style="display:flex; flex-direction:row; align-items:center;">
+            <button class="admin-mobile-toggle" id="adminSidebarToggle" aria-label="Toggle Navigation Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div style="display:flex; flex-direction:column;">
+                <div class="page-title">{% block page_title %}Dashboard{% endblock %}</div>
+                <div class="page-breadcrumb">{% block page_breadcrumb %}Home{% endblock %}</div>
+            </div>
         </div>
         <div class="topbar-right">
             {% block topbar_action %}
@@ -596,6 +717,32 @@
 </div>
 
 <script>
+    // ── Mobile Sidebar Toggle ──
+    const adminSidebarToggle = document.getElementById('adminSidebarToggle');
+    const adminSidebar = document.querySelector('.sidebar');
+    const adminOverlay = document.getElementById('adminSidebarOverlay');
+
+    function openAdminSidebar() {
+        if (adminSidebar) adminSidebar.classList.add('open');
+        if (adminOverlay) adminOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAdminSidebar() {
+        if (adminSidebar) adminSidebar.classList.remove('open');
+        if (adminOverlay) adminOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    if (adminSidebarToggle) adminSidebarToggle.addEventListener('click', openAdminSidebar);
+    if (adminOverlay) adminOverlay.addEventListener('click', closeAdminSidebar);
+
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 992) closeAdminSidebar();
+        });
+    });
+
     function confirmDelete(url, itemName) {
         document.getElementById('deleteForm').action = url;
         document.getElementById('deleteModalDesc').textContent = `Are you sure you want to delete "${itemName}"? This action cannot be undone.`;
