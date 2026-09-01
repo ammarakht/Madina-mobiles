@@ -59,6 +59,32 @@ def admin_login(request):
     return render(request, 'admin_panel/login.html', {'error': error})
 
 
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+def init_admin(request):
+    """Secure endpoint to initialize or reset admin user password in production."""
+    secret = request.GET.get('key')
+    if secret != 'madina786':
+        return HttpResponse("Unauthorized. Pass ?key=madina786", status=401)
+
+    user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@madinamobiles.xyz'})
+    user.set_password('madina123')
+    user.email = 'admin@madinamobiles.xyz'
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
+    user.save()
+
+    return HttpResponse(
+        "<div style='font-family:sans-serif;max-width:500px;margin:50px auto;padding:25px;border:1px solid #4CAF50;border-radius:8px;text-align:center;'>"
+        "<h2 style='color:#2e7d32;margin-top:0;'>✅ Admin Password Reset Successfully!</h2>"
+        "<p style='font-size:16px;'><b>Username:</b> admin</p>"
+        "<p style='font-size:16px;'><b>Password:</b> madina123</p>"
+        "<br><a href='/portal/admin/login/' style='display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;font-weight:bold;'>Go to Admin Login →</a>"
+        "</div>"
+    )
+
 def admin_logout(request):
     logout(request)
     return redirect('admin_login')
