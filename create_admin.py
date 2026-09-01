@@ -16,11 +16,19 @@ USERNAME = 'admin'
 PASSWORD = 'sveston2024'
 EMAIL = 'admin@sveston.pk'
 
-if User.objects.filter(username=USERNAME).exists():
-    print(f"[OK] Admin user '{USERNAME}' already exists.")
+user, created = User.objects.get_or_create(username=USERNAME, defaults={'email': EMAIL})
+user.set_password(PASSWORD)
+user.email = EMAIL
+user.is_staff = True
+user.is_superuser = True
+user.is_active = True
+user.save()
+
+if created:
+    print(f"[OK] Admin user '{USERNAME}' created successfully!")
 else:
-    User.objects.create_superuser(username=USERNAME, password=PASSWORD, email=EMAIL)
-    print(f"[OK] Admin user created!")
-    print(f"   Username : {USERNAME}")
-    print(f"   Password : {PASSWORD}")
-    print(f"   Portal   : http://127.0.0.1:8000/sv-cd6n-lugl/")
+    print(f"[OK] Admin user '{USERNAME}' password and permissions updated successfully!")
+
+print(f"   Username : {USERNAME}")
+print(f"   Password : {PASSWORD}")
+
