@@ -61,7 +61,9 @@ def admin_login(request):
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 def init_admin(request):
     """Secure endpoint to manually create/reset admin user credentials."""
     secret = request.GET.get('key') or request.POST.get('key')
@@ -69,22 +71,26 @@ def init_admin(request):
         return HttpResponse("<div style='font-family:sans-serif;text-align:center;margin-top:50px;'><h2>Access Denied</h2><p>Please provide valid ?key=madina786</p></div>", status=401)
 
     msg = ""
-    if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '').strip()
-        email = request.POST.get('email', 'admin@madinamobiles.xyz').strip()
+    # Support both GET query parameters (?u=...&p=...) and POST form submissions
+    username = request.POST.get('username') or request.GET.get('u') or ''
+    password = request.POST.get('password') or request.GET.get('p') or ''
+    email = request.POST.get('email') or request.GET.get('email') or 'admin@madinamobiles.xyz'
 
-        if username and password:
-            user, created = User.objects.get_or_create(username=username, defaults={'email': email})
-            user.set_password(password)
-            user.email = email
-            user.is_staff = True
-            user.is_superuser = True
-            user.is_active = True
-            user.save()
-            msg = f"<div style='background:#dcfce7;color:#166534;padding:12px;border-radius:6px;margin-bottom:15px;'><b>Success!</b> Admin account <u>{username}</u> is ready with your password.</div>"
-        else:
-            msg = "<div style='background:#fee2e2;color:#991b1b;padding:12px;border-radius:6px;margin-bottom:15px;'>Please provide both username and password.</div>"
+    username = username.strip()
+    password = password.strip()
+
+    if username and password:
+        user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+        user.set_password(password)
+        user.email = email
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
+        msg = f"<div style='background:#dcfce7;color:#166534;padding:14px;border-radius:6px;margin-bottom:18px;border:1px solid #86efac;'><b>✅ Success!</b> Admin account <u>{username}</u> is ready with your password.<br><br><a href='/portal/admin/login/' style='display:inline-block;padding:8px 16px;background:#16a34a;color:white;text-decoration:none;border-radius:5px;font-weight:bold;'>Go to Admin Login →</a></div>"
+    elif request.method == 'POST':
+        msg = "<div style='background:#fee2e2;color:#991b1b;padding:12px;border-radius:6px;margin-bottom:15px;'>Please provide both username and password.</div>"
+
 
     return HttpResponse(f"""
     <!DOCTYPE html>
