@@ -63,27 +63,56 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 
 def init_admin(request):
-    """Secure endpoint to initialize or reset admin user password in production."""
-    secret = request.GET.get('key')
+    """Secure endpoint to manually create/reset admin user credentials."""
+    secret = request.GET.get('key') or request.POST.get('key')
     if secret != 'madina786':
-        return HttpResponse("Unauthorized. Pass ?key=madina786", status=401)
+        return HttpResponse("<div style='font-family:sans-serif;text-align:center;margin-top:50px;'><h2>Access Denied</h2><p>Please provide valid ?key=madina786</p></div>", status=401)
 
-    user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@madinamobiles.xyz'})
-    user.set_password('madina123')
-    user.email = 'admin@madinamobiles.xyz'
-    user.is_staff = True
-    user.is_superuser = True
-    user.is_active = True
-    user.save()
+    msg = ""
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        email = request.POST.get('email', 'admin@madinamobiles.xyz').strip()
 
-    return HttpResponse(
-        "<div style='font-family:sans-serif;max-width:500px;margin:50px auto;padding:25px;border:1px solid #4CAF50;border-radius:8px;text-align:center;'>"
-        "<h2 style='color:#2e7d32;margin-top:0;'>✅ Admin Password Reset Successfully!</h2>"
-        "<p style='font-size:16px;'><b>Username:</b> admin</p>"
-        "<p style='font-size:16px;'><b>Password:</b> madina123</p>"
-        "<br><a href='/portal/admin/login/' style='display:inline-block;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;font-weight:bold;'>Go to Admin Login →</a>"
-        "</div>"
-    )
+        if username and password:
+            user, created = User.objects.get_or_create(username=username, defaults={'email': email})
+            user.set_password(password)
+            user.email = email
+            user.is_staff = True
+            user.is_superuser = True
+            user.is_active = True
+            user.save()
+            msg = f"<div style='background:#dcfce7;color:#166534;padding:12px;border-radius:6px;margin-bottom:15px;'><b>Success!</b> Admin account <u>{username}</u> is ready with your password.</div>"
+        else:
+            msg = "<div style='background:#fee2e2;color:#991b1b;padding:12px;border-radius:6px;margin-bottom:15px;'>Please provide both username and password.</div>"
+
+    return HttpResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Admin Setup - Madina Mobiles</title></head>
+    <body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;">
+      <div style="background:#1e293b;padding:32px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.5);width:100%;max-width:420px;border:1px solid #334155;">
+        <h2 style="margin-top:0;color:#38bdf8;text-align:center;">Set Admin ID & Password</h2>
+        {msg}
+        <form method="POST">
+          <input type="hidden" name="key" value="madina786">
+          <div style="margin-bottom:15px;">
+            <label style="display:block;font-size:14px;margin-bottom:6px;color:#94a3b8;">Admin Username / ID</label>
+            <input type="text" name="username" value="admin" required style="width:100%;padding:10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:14px;margin-bottom:6px;color:#94a3b8;">Admin Password</label>
+            <input type="password" name="password" required placeholder="Enter desired password" style="width:100%;padding:10px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:#fff;box-sizing:border-box;">
+          </div>
+          <button type="submit" style="width:100%;padding:12px;background:#2563eb;color:white;font-weight:600;border:none;border-radius:6px;cursor:pointer;font-size:15px;">Save Admin Credentials</button>
+        </form>
+        <div style="text-align:center;margin-top:20px;">
+          <a href="/portal/admin/login/" style="color:#38bdf8;text-decoration:none;font-size:14px;">Go to Admin Login →</a>
+        </div>
+      </div>
+    </body>
+    </html>
+    """)
 
 def admin_logout(request):
     logout(request)
