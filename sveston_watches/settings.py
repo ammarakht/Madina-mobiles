@@ -20,8 +20,9 @@ import dj_database_url
 ADMIN_SECRET_PREFIX = os.environ.get('ADMIN_PREFIX', 'sv-cd6n-lugl')
 
 # Comma-separated IPs allowed to access the admin portal.
-# Default: localhost only. Add your office/home IP on deployment.
-ADMIN_ALLOWED_IPS = os.environ.get('ADMIN_ALLOWED_IPS', '127.0.0.1,::1').split(',')
+# Default: '*' allows access from any IP (protected by password & secret URL).
+ADMIN_ALLOWED_IPS = os.environ.get('ADMIN_ALLOWED_IPS', '*').split(',')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

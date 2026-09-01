@@ -33,7 +33,7 @@ class AdminIPRestrictionMiddleware:
             else:
                 client_ip = request.META.get('REMOTE_ADDR', '')
 
-            if client_ip not in allowed_ips:
+            if '*' not in allowed_ips and client_ip not in allowed_ips:
                 return HttpResponseForbidden(
                     '<h1>403 Forbidden</h1>'
                     '<p>Access to this resource is restricted.</p>'
