@@ -50,9 +50,17 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://madinamobiles.xyz',
     'https://www.madinamobiles.xyz',
+    'http://madinamobiles.xyz',
+    'http://www.madinamobiles.xyz',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
+
+# Tell Django to trust the X-Forwarded-Proto header coming from Render proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
 
 
 # Application definition
