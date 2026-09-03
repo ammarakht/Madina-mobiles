@@ -5,7 +5,8 @@ import json
 import uuid
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.utils import timezone
 from store.email_utils import send_custom_email
 from django.conf import settings as django_settings
 from django.views.decorators.http import require_POST
@@ -33,101 +34,172 @@ def _get_from_email():
     return email or django_settings.DEFAULT_FROM_EMAIL
 
 
-def _send_admin_order_email(order):
-    """Send full order details to company email."""
+def _get_base_url(request=None):
+    """Derive base URL for email links."""
+    if request:
+        return request.build_absolute_uri('/')[:-1]
+    return 'http://127.0.0.1:8000'
+
+
+def _send_admin_order_email(order, request=None):
+    """Send full internal order alert to company email."""
     company_email = _get_from_email()
     if not company_email:
         return
 
-    items_text = '\n'.join(
-        f"  • {item.product.name} (x{item.quantity}) — Rs. {item.price_at_purchase:,.0f} each"
-        for item in order.items.select_related('product').all()
-    )
+    base_url = _get_base_url(request)
+    admin_order_url = f"{base_url}/portal/admin/orders/{order.id}/"
 
+    items = order.items.select_related('product').all()
+    order_items = []
+    items_text_list = []
+    for item in items:
+        subtotal = item.price_at_purchase * item.quantity
+        order_items.append({
+            'product': item.product,
+            'quantity': item.quantity,
+            'price_at_purchase': item.price_at_purchase,
+            'subtotal': subtotal
+        })
+        items_text_list.append(f"  • {item.product.name} (x{item.quantity}) — Rs. {item.price_at_purchase:,.0f} each [Subtotal: Rs. {subtotal:,.0f}]")
+
+    items_text = '\n'.join(items_text_list)
     maps_text = f"\n🗺️  Map Location: {order.maps_link}" if order.maps_link else ""
 
     payment_labels = dict(Order.PAYMENT_CHOICES)
     payment_display = payment_labels.get(order.payment_method, order.payment_method)
 
-    message = (
-        f"📦 NEW ORDER #{order.id} — Madina Mobile Shop\n"
+    # Classy Plain Text Version
+    plain_message = (
+        f"📦 NEW ORDER RECEIVED — #{order.id}\n"
         f"{'='*50}\n\n"
-        f"🧑 CUSTOMER INFO\n"
-        f"  Name   : {order.customer_name}\n"
-        f"  Email  : {order.customer_email}\n"
-        f"  Phone  : {order.customer_phone}\n"
-        f"  Type   : {'Guest' if order.is_guest else 'Registered Customer'}\n\n"
+        f"👤 CUSTOMER DETAILS\n"
+        f"  • Name   : {order.customer_name}\n"
+        f"  • Email  : {order.customer_email}\n"
+        f"  • Phone  : {order.customer_phone}\n"
+        f"  • Type   : {'Guest Checkout' if order.is_guest else 'Registered Customer'}\n\n"
         f"📍 DELIVERY ADDRESS\n"
-        f"  House  : {order.house_number}\n"
-        f"  Street : {order.street_colony}\n"
-        f"  City   : {order.city}\n"
-        f"  Landmark: {order.landmark or '—'}\n"
+        f"  • House/Flat : {order.house_number}\n"
+        f"  • Street/Col : {order.street_colony}\n"
+        f"  • City       : {order.city}\n"
+        f"  • Landmark   : {order.landmark or 'None'}\n"
         f"{maps_text}\n\n"
         f"📱 ORDERED ITEMS\n"
         f"{items_text}\n\n"
-        f"  Total  : Rs. {order.total_amount:,.0f}\n\n"
-        f"💳 PAYMENT METHOD: {payment_display}\n\n"
-        f"🕐 Order Time: {order.created_at.strftime('%d %b %Y, %I:%M %p')}\n"
-        f"🔗 Admin Portal: http://127.0.0.1:8000/sv-cd6n-lugl/orders/{order.id}/\n"
+        f"💳 Payment Method : {payment_display}\n"
+        f"💰 Total Amount    : Rs. {order.total_amount:,.0f}\n"
+        f"🕐 Order Time      : {order.created_at.strftime('%d %b %Y, %I:%M %p')}\n\n"
+        f"🔐 Open in Admin Portal:\n"
+        f"{admin_order_url}\n"
     )
+
+    # Rich HTML Version
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'payment_display': payment_display,
+        'admin_order_url': admin_order_url,
+    }
+    html_message = None
+    try:
+        html_message = render_to_string('emails/order_admin.html', context)
+    except Exception as e:
+        print("Error rendering admin email template:", e)
 
     try:
         send_custom_email(
-            subject=f"[Madina Mobile] New Order #{order.id} — {order.customer_name}",
-            message=message,
+            subject=f"[New Order #{order.id}] {order.customer_name} — Rs. {order.total_amount:,.0f}",
+            message=plain_message,
             recipient_list=[company_email],
+            html_message=html_message,
             fail_silently=True,
         )
     except Exception as e:
         print("Admin email error:", e)
 
 
-def _send_customer_order_email(order):
-    """Send confirmation email to customer."""
+def _send_customer_order_email(order, request=None):
+    """Send classy confirmation email to customer (Strictly NO admin URLs or sensitive details)."""
     customer_email = order.customer_email
     if not customer_email:
         return
 
-    from_email = _get_from_email()
-    items_text = '\n'.join(
-        f"  • {item.product.name} x{item.quantity} — Rs. {item.price_at_purchase:,.0f}"
-        for item in order.items.select_related('product').all()
-    )
+    base_url = _get_base_url(request)
+    company_email = SiteSettings.get_email()
+    company_phone = SiteSettings.get_phone()
+
+    items = order.items.select_related('product').all()
+    order_items = []
+    items_text_list = []
+    for item in items:
+        subtotal = item.price_at_purchase * item.quantity
+        order_items.append({
+            'product': item.product,
+            'quantity': item.quantity,
+            'price_at_purchase': item.price_at_purchase,
+            'subtotal': subtotal
+        })
+        items_text_list.append(f"  • {item.product.name} x{item.quantity} — Rs. {item.price_at_purchase:,.0f} (Rs. {subtotal:,.0f})")
+
+    items_text = '\n'.join(items_text_list)
 
     payment_labels = dict(Order.PAYMENT_CHOICES)
     payment_display = payment_labels.get(order.payment_method, order.payment_method)
 
     if order.is_guest:
-        tracking_url = f"http://127.0.0.1:8000/track/{order.tracking_token}/"
-        tracking_line = f"Track your order here: {tracking_url}"
+        tracking_url = f"{base_url}/track/{order.tracking_token}/"
+        tracking_line = f"Track your live order status here:\n{tracking_url}"
     else:
-        tracking_line = "Track your order at: http://127.0.0.1:8000/account/orders/"
+        tracking_url = f"{base_url}/account/orders/"
+        tracking_line = f"Track all your orders in your dashboard:\n{tracking_url}"
 
-    message = (
+    # Classy Plain Text Version (strictly customer-facing)
+    plain_message = (
         f"Dear {order.customer_name},\n\n"
-        f"Thank you for your order! Your Madina Mobile Shop order has been placed successfully.\n\n"
-        f"ORDER DETAILS\n"
+        f"Thank you for choosing Madina Mobile Shop! Your order has been placed successfully.\n\n"
+        f"ORDER SUMMARY\n"
         f"{'─'*40}\n"
-        f"Order Number : #{order.id}\n"
-        f"Payment      : {payment_display}\n\n"
-        f"ITEMS ORDERED\n"
+        f"Order Number   : #{order.id}\n"
+        f"Order Date     : {order.created_at.strftime('%d %b %Y, %I:%M %p')}\n"
+        f"Payment Method : {payment_display}\n\n"
+        f"ORDERED ITEMS\n"
         f"{items_text}\n\n"
-        f"Total Amount : Rs. {order.total_amount:,.0f}\n\n"
+        f"Total Amount   : Rs. {order.total_amount:,.0f}\n\n"
         f"DELIVERY ADDRESS\n"
         f"{order.full_address}\n\n"
         f"ORDER TRACKING\n"
         f"{tracking_line}\n\n"
-        f"Our team will confirm your order shortly.\n\n"
+        f"Our team will confirm your order and dispatch your package shortly.\n\n"
+        f"If you have any questions, feel free to contact us:\n"
+        f"📞 Phone: {company_phone}\n"
+        f"{f'✉️ Email: {company_email}\n' if company_email else ''}\n"
         f"Warm regards,\n"
         f"Madina Mobile Shop — Customer Support\n"
-        f"http://127.0.0.1:8000/"
+        f"{base_url}/\n"
     )
+
+    # Rich HTML Version
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'payment_display': payment_display,
+        'tracking_url': tracking_url,
+        'company_phone': company_phone,
+        'company_email': company_email,
+        'current_year': timezone.now().year,
+    }
+    html_message = None
+    try:
+        html_message = render_to_string('emails/order_customer.html', context)
+    except Exception as e:
+        print("Error rendering customer email template:", e)
 
     try:
         send_custom_email(
-            subject=f"Order #{order.id} Confirmed — Madina Mobile Shop",
-            message=message,
+            subject=f"Order Confirmed #{order.id} — Madina Mobile Shop",
+            message=plain_message,
             recipient_list=[customer_email],
+            html_message=html_message,
             fail_silently=True,
         )
     except Exception as e:
@@ -288,8 +360,8 @@ def checkout_payment(request):
                 request.session.pop(key, None)
 
             # Send emails
-            _send_customer_order_email(order)
-            _send_admin_order_email(order)
+            _send_customer_order_email(order, request=request)
+            _send_admin_order_email(order, request=request)
 
             return redirect('checkout_confirm', token=str(order.tracking_token))
 

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation #{{ order.id }}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #334155; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; padding: 30px 10px;">
+        <tr>
+            <td align="center">
+                <!-- Email Container -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 24px; text-align: center;">
+                            <div style="display: inline-block; padding: 6px 16px; background-color: rgba(217, 119, 6, 0.15); border: 1px solid #d97706; border-radius: 20px; color: #fbbf24; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
+                                Official Confirmation
+                            </div>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">
+                                MADINA MOBILE SHOP
+                            </h1>
+                            <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 14px;">
+                                Premium Smart Devices &amp; Accessories
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Status Hero Banner -->
+                    <tr>
+                        <td style="padding: 28px 24px 20px 24px; text-align: center; background-color: #ffffff;">
+                            <div style="display: inline-block; width: 48px; height: 48px; line-height: 48px; border-radius: 50%; background-color: #ecfdf5; color: #059669; font-size: 24px; margin-bottom: 12px;">
+                                ✓
+                            </div>
+                            <h2 style="margin: 0 0 8px 0; color: #0f172a; font-size: 20px; font-weight: 700;">
+                                Thank You for Your Order!
+                            </h2>
+                            <p style="margin: 0; color: #64748b; font-size: 15px; line-height: 1.5;">
+                                Dear <strong>{{ order.customer_name }}</strong>, your order <span style="color: #d97706; font-weight: 700;">#{{ order.id }}</span> has been placed successfully and is now being processed.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Order Quick Summary Card -->
+                    <tr>
+                        <td style="padding: 0 24px 20px 24px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 13px; color: #64748b; width: 40%;">Order Number:</td>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #0f172a; font-weight: 700; text-align: right;">#{{ order.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 13px; color: #64748b;">Order Date:</td>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #0f172a; font-weight: 600; text-align: right;">{{ order.created_at|date:"d M Y, h:i A" }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 13px; color: #64748b;">Payment Method:</td>
+                                    <td style="padding: 6px 0; font-size: 14px; color: #0f172a; font-weight: 600; text-align: right;">{{ payment_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 0; font-size: 13px; color: #64748b;">Order Status:</td>
+                                    <td style="padding: 6px 0; font-size: 13px; font-weight: 700; text-align: right;">
+                                        <span style="display: inline-block; padding: 3px 8px; border-radius: 6px; background-color: #fef3c7; color: #92400e; font-size: 12px; text-transform: uppercase;">Pending Confirmation</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Items Section -->
+                    <tr>
+                        <td style="padding: 0 24px 20px 24px;">
+                            <h3 style="margin: 0 0 12px 0; color: #0f172a; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
+                                Ordered Items
+                            </h3>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                {% for item in order_items %}
+                                <tr>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #1e293b;">
+                                        <div style="font-weight: 600; color: #0f172a;">{{ item.product.name }}</div>
+                                        <div style="font-size: 13px; color: #64748b;">Qty: {{ item.quantity }} &times; Rs. {{ item.price_at_purchase|floatformat:0 }}</div>
+                                    </td>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 700; color: #0f172a; text-align: right; vertical-align: top;">
+                                        Rs. {{ item.subtotal|floatformat:0 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td style="padding: 16px 0 0 0; font-size: 16px; font-weight: 700; color: #0f172a;">Total Amount:</td>
+                                    <td style="padding: 16px 0 0 0; font-size: 18px; font-weight: 800; color: #d97706; text-align: right;">
+                                        Rs. {{ order.total_amount|floatformat:0 }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Delivery Address Section -->
+                    <tr>
+                        <td style="padding: 0 24px 24px 24px;">
+                            <h3 style="margin: 0 0 12px 0; color: #0f172a; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
+                                Delivery Address
+                            </h3>
+                            <div style="background-color: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; font-size: 14px; line-height: 1.6; color: #334155;">
+                                <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;">{{ order.customer_name }}</div>
+                                <div>{{ order.house_number }}, {{ order.street_colony }}</div>
+                                <div>{{ order.city }}{% if order.landmark %}, Near {{ order.landmark }}{% endif %}</div>
+                                <div style="margin-top: 6px; color: #64748b; font-size: 13px;">📞 Contact: {{ order.customer_phone }}</div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Track Order CTA Button -->
+                    {% if tracking_url %}
+                    <tr>
+                        <td style="padding: 0 24px 30px 24px; text-align: center;">
+                            <a href="{{ tracking_url }}" target="_blank" style="display: inline-block; width: 85%; max-width: 320px; padding: 14px 20px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);">
+                                Track Your Order &rarr;
+                            </a>
+                            <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 12px;">
+                                You can check your real-time delivery status anytime.
+                            </p>
+                        </td>
+                    </tr>
+                    {% endif %}
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #0f172a; padding: 24px; text-align: center; color: #94a3b8; font-size: 13px; line-height: 1.6;">
+                            <p style="margin: 0 0 8px 0; color: #cbd5e1; font-weight: 600;">
+                                Madina Mobile Shop
+                            </p>
+                            <p style="margin: 0 0 12px 0;">
+                                Questions about your order? Reach us anytime:
+                                <br>
+                                {% if company_phone %}📞 Phone: <strong style="color: #ffffff;">{{ company_phone }}</strong>{% endif %}
+                                {% if company_email %} | ✉️ {{ company_email }}{% endif %}
+                            </p>
+                            <p style="margin: 0; font-size: 11px; color: #64748b;">
+                                &copy; {{ current_year }} Madina Mobile Shop. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

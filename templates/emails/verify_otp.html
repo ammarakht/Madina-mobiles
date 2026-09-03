@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #334155; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; padding: 30px 10px;">
+        <tr>
+            <td align="center">
+                <!-- Container -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 540px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 24px; text-align: center;">
+                            <div style="display: inline-block; padding: 5px 14px; background-color: rgba(217, 119, 6, 0.15); border: 1px solid #d97706; border-radius: 20px; color: #fbbf24; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
+                                Email Verification
+                            </div>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">
+                                MADINA MOBILE SHOP
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 32px 28px 20px 28px; text-align: center;">
+                            <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 19px; font-weight: 700;">
+                                Confirm Your Registration
+                            </h2>
+                            <p style="margin: 0 0 24px 0; color: #64748b; font-size: 14px; line-height: 1.5;">
+                                Hello <strong>{{ name }}</strong>, thank you for joining Madina Mobile Shop. Please enter the following 6-digit verification code to activate your account:
+                            </p>
+
+                            <!-- OTP Box -->
+                            <div style="display: inline-block; padding: 16px 32px; background: #f8fafc; border: 2px dashed #d97706; border-radius: 12px; margin-bottom: 24px;">
+                                <span style="font-family: 'Courier New', Courier, monospace; font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #d97706;">
+                                    {{ otp_code }}
+                                </span>
+                            </div>
+
+                            <p style="margin: 0; color: #94a3b8; font-size: 13px; line-height: 1.5;">
+                                This code is valid for 10 minutes. Please do not share this OTP with anyone.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 20px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0; line-height: 1.5;">
+                            If you did not attempt to sign up on Madina Mobile Shop, you can safely ignore this email.
+                            <br><br>
+                            &copy; Madina Mobile Shop. All rights reserved.
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

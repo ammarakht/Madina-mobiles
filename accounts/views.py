@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 import json
 import random
+from django.template.loader import render_to_string
 from store.email_utils import send_custom_email
 from django.conf import settings
 from django.db.models import Q
@@ -43,21 +44,33 @@ def customer_register(request):
             )
 
             # Send Email Verification Code
-            subject = f"Verify Your Email — Madina Mobile Shop"
+            subject = "Verify Your Email — Madina Mobile Shop"
+            base_url = request.build_absolute_uri('/')[:-1]
             message = (
                 f"Hello {name},\n\n"
                 f"Thank you for starting your registration with Madina Mobile Shop.\n\n"
                 f"Your 6-Digit Email Verification Code is: {otp_code}\n\n"
                 f"Please enter this code on the verification page to complete your registration.\n\n"
+                f"This code will expire in 10 minutes.\n\n"
                 f"Best regards,\n"
                 f"Madina Mobile Shop Team\n"
-                f"http://127.0.0.1:8000/"
+                f"{base_url}/"
             )
+            html_message = None
+            try:
+                html_message = render_to_string('emails/verify_otp.html', {
+                    'name': name,
+                    'otp_code': otp_code,
+                })
+            except Exception as e:
+                print("OTP email render error:", e)
+
             try:
                 send_custom_email(
                     subject=subject,
                     message=message,
                     recipient_list=[email],
+                    html_message=html_message,
                     fail_silently=False,
                 )
             except Exception as e:
@@ -99,22 +112,35 @@ def verify_otp(request):
 
             # Send Organization Confirmation Email
             welcome_subject = "Welcome to Madina Mobile Shop — Account Successfully Created!"
+            base_url = request.build_absolute_uri('/')[:-1]
             welcome_message = (
                 f"Dear {verification.name},\n\n"
                 f"Congratulations! Your customer account with Madina Mobile Shop has been successfully verified and created.\n\n"
                 f"Account Details:\n"
                 f"• Email: {verification.email}\n"
                 f"• Phone: {verification.phone}\n\n"
-                f"You can now log in, save your items to your cart, track your orders, and receive updates tailored specifically for you.\n\n"
-                f"Shop Now: http://127.0.0.1:8000/\n\n"
+                f"You can now log in, save items to your cart, track your orders, and enjoy exclusive member offers.\n\n"
+                f"Shop Now: {base_url}/\n\n"
                 f"Warm regards,\n"
                 f"Madina Mobile Shop — Customer Support Team"
             )
+            welcome_html = None
+            try:
+                welcome_html = render_to_string('emails/welcome.html', {
+                    'name': verification.name,
+                    'email': verification.email,
+                    'phone': verification.phone,
+                    'store_url': f"{base_url}/",
+                })
+            except Exception as e:
+                print("Welcome email render error:", e)
+
             try:
                 send_custom_email(
                     subject=welcome_subject,
                     message=welcome_message,
                     recipient_list=[verification.email],
+                    html_message=welcome_html,
                     fail_silently=True,
                 )
             except Exception:

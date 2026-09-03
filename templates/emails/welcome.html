@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Madina Mobile Shop</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #334155; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; padding: 30px 10px;">
+        <tr>
+            <td align="center">
+                <!-- Container -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 560px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 24px; text-align: center;">
+                            <div style="display: inline-block; padding: 5px 14px; background-color: rgba(217, 119, 6, 0.15); border: 1px solid #d97706; border-radius: 20px; color: #fbbf24; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;">
+                                Welcome Aboard
+                            </div>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">
+                                MADINA MOBILE SHOP
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 32px 28px 24px 28px; text-align: center;">
+                            <div style="display: inline-block; width: 48px; height: 48px; line-height: 48px; border-radius: 50%; background-color: #ecfdf5; color: #059669; font-size: 24px; margin-bottom: 12px;">
+                                🌟
+                            </div>
+                            <h2 style="margin: 0 0 10px 0; color: #0f172a; font-size: 20px; font-weight: 700;">
+                                Account Successfully Created!
+                            </h2>
+                            <p style="margin: 0 0 24px 0; color: #64748b; font-size: 15px; line-height: 1.6;">
+                                Dear <strong>{{ name }}</strong>, welcome to Madina Mobile Shop! Your account has been verified and is ready to use.
+                            </p>
+
+                            <!-- Account Details -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; font-size: 14px; text-align: left; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 6px 0; color: #64748b; width: 35%;">Registered Email:</td>
+                                    <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">{{ email }}</td>
+                                </tr>
+                                {% if phone %}
+                                <tr>
+                                    <td style="padding: 6px 0; color: #64748b;">Phone:</td>
+                                    <td style="padding: 6px 0; color: #0f172a; font-weight: 600;">{{ phone }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+
+                            <!-- CTA Button -->
+                            <a href="{{ store_url }}" target="_blank" style="display: inline-block; width: 80%; max-width: 280px; padding: 14px 20px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; border-radius: 10px; text-align: center; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);">
+                                Start Shopping &rarr;
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #0f172a; padding: 20px; text-align: center; color: #94a3b8; font-size: 12px;">
+                            Madina Mobile Shop &bull; Premium Smart Devices &amp; Accessories
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
