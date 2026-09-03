@@ -153,6 +153,8 @@ def _send_customer_order_email(order, request=None):
         tracking_url = f"{base_url}/account/orders/"
         tracking_line = f"Track all your orders in your dashboard:\n{tracking_url}"
 
+    email_line = f"✉️ Email: {company_email}\n" if company_email else ""
+
     # Classy Plain Text Version (strictly customer-facing)
     plain_message = (
         f"Dear {order.customer_name},\n\n"
@@ -172,7 +174,7 @@ def _send_customer_order_email(order, request=None):
         f"Our team will confirm your order and dispatch your package shortly.\n\n"
         f"If you have any questions, feel free to contact us:\n"
         f"📞 Phone: {company_phone}\n"
-        f"{f'✉️ Email: {company_email}\n' if company_email else ''}\n"
+        f"{email_line}"
         f"Warm regards,\n"
         f"Madina Mobile Shop — Customer Support\n"
         f"{base_url}/\n"
